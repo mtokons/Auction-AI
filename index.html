@@ -459,24 +459,42 @@ Bids so far: ${p.bids}
 Type: ${p.type}
 Auction: DIIA #473, 21 May 2026`;
 
-  const resp=await fetch('https://auction-ai-proxy.mhasnainn.workers.dev',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({system:sys, userMessage:msg})
-  });
-
-  if(!resp.ok){
-    const errData=await resp.json().catch(()=>null);
-    const errMsg=errData?.error || `Worker error ${resp.status}`;
-    throw new Error(errMsg);
+  let lastError='';
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt>0){
+      const waitSec=20*(attempt);
+      showToast('⏳ Rate limited — retrying in '+waitSec+'s (attempt '+(attempt+1)+'/3)');
+      await new Promise(r=>setTimeout(r,waitSec*1000));
+    }
+    const resp=await fetch('https://auction-ai-proxy.mhasnainn.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:sys, userMessage:msg, propertyId:p.id})
+    });
+    if(!resp.ok){
+      const errData=await resp.json().catch(()=>null);
+      lastError=errData?.error || `Worker error ${resp.status}`;
+      if(resp.status===429 || (lastError && (lastError.includes('Quota')||lastError.includes('rate')))){
+        continue;
+      }
+      throw new Error(lastError);
+    }
+    const data=await resp.json();
+    if(data.error){
+      lastError=typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+      if(lastError.includes('Quota') || lastError.includes('rate')){
+        continue;
+      }
+      throw new Error(lastError);
+    }
+    if(data.cached) showToast('⚡ Loaded from cache: '+p.lot);
+    const raw=(data.text||'').replace(/```json|```/g,'').trim();
+    if(!raw) throw new Error('Empty response');
+    const si=raw.indexOf('{'), ei=raw.lastIndexOf('}');
+    if(si===-1||ei===-1) throw new Error('No JSON in response');
+    return JSON.parse(raw.slice(si,ei+1));
   }
-  const data=await resp.json();
-  if(data.error) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
-  const raw=(data.text||'').replace(/```json|```/g,'').trim();
-  if(!raw)throw new Error('Empty response');
-  const si=raw.indexOf('{'), ei=raw.lastIndexOf('}');
-  if(si===-1||ei===-1)throw new Error('No JSON in response');
-  return JSON.parse(raw.slice(si,ei+1));
+  throw new Error('Rate limited — please wait 1 minute and try again');
 }
 
 // ── ANALYZE ONE ──
@@ -532,7 +550,7 @@ async function analyzeAll(){
     pf.style.width=Math.round(done/PROPS.length*100)+'%';
     pt.textContent=done+'/'+PROPS.length;
     document.getElementById('analyzedFilterBtn').textContent=`✓ Analyzed (${Object.keys(analyses).length})`;
-    await new Promise(r=>setTimeout(r,600));
+    await new Promise(r=>setTimeout(r,4000));
   }
   btn.textContent='✓ All Analyzed';
   btn.disabled=false;
@@ -657,7 +675,28 @@ function tick(){
 setInterval(tick,1000);tick();
 
 // ── INIT ──
+
+// ── LOAD SAVED ANALYSES FROM CLOUDFLARE KV ──
+async function loadSavedAnalyses(){
+  try{
+    const resp=await fetch('https://auction-ai-proxy.mhasnainn.workers.dev/analyses');
+    if(!resp.ok)return;
+    const data=await resp.json();
+    if(data && typeof data==='object' && !data.error){
+      let count=0;
+      for(const[pid,result] of Object.entries(data)){
+        if(!analyses[pid]){analyses[pid]=result;count++;}
+      }
+      if(count>0){
+        render();
+        showToast('☁️ Loaded '+count+' saved analyses from cloud');
+      }
+    }
+  }catch(e){console.log('Could not load saved analyses:',e);}
+}
+
 render();
+loadSavedAnalyses();
 </script>
 </body>
 </html>
