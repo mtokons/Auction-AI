@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PropClear — Live DIIA Auction Intelligence</title>
+<title>Auction AI — Live DIIA Auction Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -227,7 +227,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 
 <header>
   <div>
-    <span class="logo-mark">PropClear</span>
+    <span class="logo-mark">Auction AI</span>
     <span class="logo-tag">DIIA Intelligence</span>
   </div>
   <div class="live-badge"><div class="pulse"></div>Live · Auction #473 · 21 May 2026</div>
@@ -295,7 +295,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 
 <footer>
   <p class="footer-text">
-    PropClear · Data scraped live from <a href="https://www.diia.de" target="_blank">DIIA.de</a> Auction #473 · 21 May 2026<br>
+    Auction AI · Data scraped live from <a href="https://www.diia.de" target="_blank">DIIA.de</a> Auction #473 · 21 May 2026<br>
     ⚠️ AI analysis is for decision support only — not legal or financial advice.<br>
     Always consult a German <strong style="color:rgba(246,243,236,.5)">Notar</strong> and <strong style="color:rgba(246,243,236,.5)">Steuerberater</strong> before bidding. Purchases are legally binding upon <em>Zuschlag</em>.<br>
     Total cost = Winning bid + <strong style="color:rgba(246,243,236,.5)">7.14% Aufgeld</strong> + <strong style="color:rgba(246,243,236,.5)">3.5–6.5% Grunderwerbsteuer</strong> + <strong style="color:rgba(246,243,236,.5)">€1,500–3,000 Notar fees</strong>
@@ -446,7 +446,7 @@ function closeInline(pid){
 
 // ── AI CALL (no API key needed — goes through Claude.ai proxy) ──
 async function callAI(p){
-  const sys=`You are PropClear, a German real estate auction expert. Analyze this DIIA auction property for an international investor. Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
+  const sys=`You are Auction AI, a German real estate auction expert. Analyze this DIIA auction property for an international investor. Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
 {"title_en":"English title","location":"City, State","property_type":"Land/Forest/Vineyard/Agricultural/etc","decision":"BUY","decision_reason":"one sentence max 15 words","investment_score":7.2,"transport_score":5.0,"legal_score":8.0,"market_score":6.5,"summary":"2-3 sentences plain English","pros":["pro1","pro2","pro3","pro4"],"cons":["con1","con2","con3","con4"],"legal_terms":[{"de":"German term","en":"English","explanation":"plain English explanation for investor","status":"OK"}],"transport_analysis":{"overall":"good","summary":"transport summary","connections":[{"type":"Train","detail":"details","quality":"good"}]},"market_outlook":{"short_term":"1-2yr outlook","mid_term":"3-5yr outlook","long_term":"10yr+ outlook"},"major_problems":["problem1"],"investment_opportunities":["opp1"],"key_questions_to_ask":["q1","q2"],"estimated_true_value":"€X,000–€Y,000 brief reasoning","hidden_costs":["cost1","cost2","cost3"]}
 Status must be "OK", "CHECK", or "WARN". Quality must be "good", "ok", or "poor". Scores 1-10. Be realistic.`;
 
@@ -459,25 +459,23 @@ Bids so far: ${p.bids}
 Type: ${p.type}
 Auction: DIIA #473, 21 May 2026`;
 
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+  const resp=await fetch('https://auction-ai-proxy.mhasnainn.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1400,
-      system:sys,
-      messages:[{role:'user',content:msg}]
-    })
+    body:JSON.stringify({system:sys, userMessage:msg})
   });
 
   if(!resp.ok){
-    const err=await resp.json().catch(()=>({}));
-    throw new Error(err.error?.message||`HTTP ${resp.status}`);
+    const err=await resp.text();
+    throw new Error(`Worker error ${resp.status}: ${err}`);
   }
   const data=await resp.json();
-  const raw=(data.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-  if(!raw)throw new Error('Empty response from AI');
-  return JSON.parse(raw);
+  if(data.error)throw new Error(data.error);
+  const raw=(data.text||'').replace(/```json|```/g,'').trim();
+  if(!raw)throw new Error('Empty response');
+  const si=raw.indexOf('{'), ei=raw.lastIndexOf('}');
+  if(si===-1||ei===-1)throw new Error('No JSON in response');
+  return JSON.parse(raw.slice(si,ei+1));
 }
 
 // ── ANALYZE ONE ──
