@@ -466,11 +466,12 @@ Auction: DIIA #473, 21 May 2026`;
   });
 
   if(!resp.ok){
-    const err=await resp.text();
-    throw new Error(`Worker error ${resp.status}: ${err}`);
+    const errData=await resp.json().catch(()=>null);
+    const errMsg=errData?.error || `Worker error ${resp.status}`;
+    throw new Error(errMsg);
   }
   const data=await resp.json();
-  if(data.error)throw new Error(data.error);
+  if(data.error) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
   const raw=(data.text||'').replace(/```json|```/g,'').trim();
   if(!raw)throw new Error('Empty response');
   const si=raw.indexOf('{'), ei=raw.lastIndexOf('}');
