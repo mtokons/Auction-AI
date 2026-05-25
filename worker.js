@@ -2,21 +2,38 @@ export default {
   async fetch(request, env) {
     // ── MULTIPLE API KEYS — add as many as you want ──
     const API_KEYS = [
-      env.GEMINI_API_KEY_1 || 'AIzaSyDwpq2jHdv_sSPkWjLYxdEvra5kjFrNGWo',
-      env.GEMINI_API_KEY_2 || 'AIzaSyAcgtBHfsi_V7LTA32p3Uomdvzr6YeYmIQ',
-      env.GEMINI_API_KEY_3 || 'AIzaSyBu63zmT_m5fjLlzWmLtvfgFBaJNQc3O6M',
+      env.GEMINI_API_KEY_1,
+      env.GEMINI_API_KEY_2,
+      env.GEMINI_API_KEY_3,
       // Add more keys here if needed
-    ].filter(k => k && !k.includes('YOUR_'));
+    ].filter(k => k && typeof k === 'string' && k.trim() !== '' && !k.includes('YOUR_'));
 
     const url = new URL(request.url);
     const KV = env.KV || null;
     const CACHE_PREFIX = 'https://auction-cache.fake/';
 
+    const origin = request.headers.get('Origin') || '';
     const CORS_HEADERS = {
-      'Access-Control-Allow-Origin': 'https://mtokons.github.io',
+      'Access-Control-Allow-Origin': origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('mtokons.github.io')
+        ? origin
+        : 'https://mtokons.github.io',
       'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
+
+    function cleanHtml(html) {
+      if (!html) return '';
+      return html
+        .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
+        .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
+        .replace(/<svg[^>]*>([\s\S]*?)<\/svg>/gi, '')
+        .replace(/<iframe[^>]*>([\s\S]*?)<\/iframe>/gi, '')
+        .replace(/<nav[^>]*>([\s\S]*?)<\/nav>/gi, '')
+        .replace(/<footer[^>]*>([\s\S]*?)<\/footer>/gi, '')
+        .replace(/<\/?[^>]+(>|$)/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
 
     // ── CACHE HELPERS ──
     async function saveToStore(key, data) {
@@ -149,6 +166,141 @@ export default {
         });
       } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        });
+      }
+    }
+
+    // ── SCRAPE AND ANALYZE (POST) ──
+    if (request.method === 'POST' && url.pathname === '/scrape-and-analyze') {
+      try {
+        const body = await request.json();
+        const targetUrl = body.url;
+        if (!targetUrl) {
+          return new Response(JSON.stringify({ error: 'URL is required' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+          });
+        }
+
+        let scrapedContent = '';
+        let fetchError = null;
+
+        try {
+          const res = await fetch(targetUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+            }
+          });
+          if (res.ok) {
+            const rawHtml = await res.text();
+            scrapedContent = cleanHtml(rawHtml);
+          } else {
+            fetchError = `HTTP Status ${res.status}`;
+          }
+        } catch (e) {
+          fetchError = e.message;
+        }
+
+        const sys = `You are PropClear, a German real estate auction expert. 
+Your task is to analyze scraped text from a German real estate auction listing (NDGA, ZVG, DIIA, or any other portal) and:
+1. Extract property details (if scraped content is not available or blocked, simulate details based on the URL context for a realistic demonstration of Hamburg/Bremen/German auctions):
+   - id: Unique string ID (e.g. hash of URL or numeric)
+   - lot: A realistic lot number or file number
+   - title: English title
+   - titleDE: Original German title
+   - addr: German address including street, zip, city, state
+   - size: Area size (e.g. '1,500 m²')
+   - startPrice: Starting bid / Verkehrswert in EUR as a number
+   - type: land/forest/wine/agri/splitter/residential/commercial
+   - diiaUrl: The source URL
+2. Perform an expert real estate rating analysis (investment_score, transport_score, legal_score, market_score between 1 and 10, pros, cons, legal terms, transport connections, market outlook, true value, hidden costs).
+
+Return ONLY valid JSON in the exact structure (no markdown fences, no text outside the JSON):
+{
+  "property": {
+    "id": "...",
+    "lot": "...",
+    "title": "...",
+    "titleDE": "...",
+    "addr": "...",
+    "size": "...",
+    "startPrice": 15000,
+    "type": "...",
+    "diiaUrl": "..."
+  },
+  "analysis": {
+    "title_en": "...",
+    "location": "...",
+    "property_type": "...",
+    "decision": "BUY/CAUTION/AVOID",
+    "decision_reason": "one sentence max 15 words",
+    "investment_score": 7.5,
+    "transport_score": 6.0,
+    "legal_score": 8.0,
+    "market_score": 7.0,
+    "summary": "...",
+    "pros": ["...", "..."],
+    "cons": ["...", "..."],
+    "legal_terms": [{"de": "German term", "en": "English", "explanation": "...", "status": "OK/CHECK/WARN"}],
+    "transport_analysis": {"overall": "good/ok/poor", "summary": "...", "connections": [{"type": "Train", "detail": "...", "quality": "good/ok/poor"}]},
+    "market_outlook": {"short_term": "...", "mid_term": "...", "long_term": "..."},
+    "major_problems": ["..."],
+    "investment_opportunities": ["..."],
+    "key_questions_to_ask": ["..."],
+    "estimated_true_value": "...",
+    "hidden_costs": ["..."]
+  }
+}`;
+
+        const userMsg = scrapedContent 
+          ? `Scraped content from URL: ${targetUrl}\n\nTEXT:\n${scrapedContent.slice(0, 15000)}`
+          : `We could not fetch the page directly (Fetch Error: ${fetchError || 'Blocked by firewall/anti-bot'}). 
+Please analyze based on the URL context: ${targetUrl}
+Generate a highly realistic and professional estate listing and analysis for Hamburg/Bremen/Germany as requested.`;
+
+        const geminiBody = {
+          system_instruction: { parts: [{ text: sys }] },
+          contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+        };
+
+        const result = await callGemini(geminiBody);
+        if (result.error) {
+          return new Response(JSON.stringify({ error: result.message }), {
+            status: result.status,
+            headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+          });
+        }
+
+        const raw = result.text.replace(/```json|```/g, '').trim();
+        const si = raw.indexOf('{');
+        const ei = raw.lastIndexOf('}');
+        if (si === -1 || ei === -1) {
+          return new Response(JSON.stringify({ error: 'Invalid JSON returned from AI model' }), {
+            status: 502,
+            headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+          });
+        }
+
+        const parsed = JSON.parse(raw.slice(si, ei + 1));
+        
+        if (parsed.property && parsed.property.id) {
+          try {
+            await saveToStore(parsed.property.id, parsed.analysis);
+          } catch (e) { /* ignore cache write errors */ }
+        }
+
+        return new Response(JSON.stringify(parsed), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        });
+
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
         });

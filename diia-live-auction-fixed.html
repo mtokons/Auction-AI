@@ -214,6 +214,63 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 ::-webkit-scrollbar-thumb{background:rgba(13,15,11,.15);border-radius:2px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--gold);}
 
+/* SCRAPER SECTION */
+.scraper-section{background:var(--cream);padding:1.5rem 2rem;border-bottom:1px solid var(--border);position:relative;}
+.scraper-inner{max-width:1200px;margin:0 auto;}
+.scraper-title{font-family:'Instrument Serif',serif;font-size:1.6rem;color:var(--ink);margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem;}
+.scraper-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);line-height:1.6;margin-bottom:1rem;max-width:850px;}
+.scraper-row{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem;}
+.scraper-input{flex:1;background:var(--paper);border:1px solid var(--border-strong);padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--ink);outline:none;border-radius:2px;transition:border-color .2s;}
+.scraper-input:focus{border-color:var(--gold);}
+.btn-scrape{background:var(--ink);color:var(--gold);border:none;padding:.75rem 1.8rem;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;white-space:nowrap;}
+.btn-scrape:hover{background:var(--teal);}
+.btn-scrape:disabled{opacity:.5;cursor:not-allowed;}
+
+.scraper-examples{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.4rem;}
+.ex-label{font-size:.55rem;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;}
+.ex-btn{background:transparent;border:1px solid var(--border);padding:.25rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);cursor:pointer;border-radius:2px;transition:all .15s;}
+.ex-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(184,146,42,.05);}
+
+/* LOADING STEPS */
+.scraper-loading{display:none;background:var(--ink);border-radius:3px;padding:1.2rem;margin-top:1.2rem;align-items:center;gap:1.5rem;animation:fadeUp .25s ease;}
+.scraper-loading.open{display:flex;}
+.loading-spinner{width:36px;height:36px;border:3px solid rgba(184,146,42,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+.loading-text-container{display:flex;flex-direction:column;gap:.35rem;}
+.loading-step{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(246,243,236,.3);transition:color .25s;}
+.loading-step.active{color:var(--gold-light);font-weight:500;}
+.loading-step.done{color:#81c784;}
+
+/* TABS */
+.view-tabs{display:flex;background:var(--cream);border-bottom:1px solid var(--border);padding:0 2rem;}
+.v-tab{background:transparent;border:none;border-bottom:3px solid transparent;padding:1rem 1.5rem;font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;}
+.v-tab:hover{color:var(--ink);}
+.v-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* LEADERBOARD VIEW */
+.leaderboard-card{background:var(--paper);border:1px solid var(--border-strong);border-radius:3px;overflow:hidden;box-shadow:0 2px 10px rgba(13,15,11,0.02);margin-top:1rem;}
+.leaderboard-table{width:100%;border-collapse:collapse;text-align:left;}
+.leaderboard-table th{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:1rem 1.4rem;background:var(--cream);border-bottom:2px solid var(--border);font-weight:700;}
+.leaderboard-table td{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);font-size:.7rem;vertical-align:middle;}
+.leaderboard-table tr:last-child td{border-bottom:none;}
+.leaderboard-table tr:hover td{background:rgba(13,15,11,.02);}
+
+.rank-badge{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.75rem;}
+.rank-1{background:var(--gold);color:var(--ink);box-shadow:0 0 10px rgba(184,146,42,.3);}
+.rank-2{background:#cfd8dc;color:var(--ink);}
+.rank-3{background:#b0bec5;color:var(--ink);}
+.rank-other{background:var(--cream);color:var(--muted);border:1px solid var(--border);}
+
+.score-mini-bar{display:flex;gap:.15rem;align-items:center;margin-top:.3rem;}
+.score-dot{width:6px;height:6px;border-radius:50%;}
+
+.avg-rating-cell{font-family:'Instrument Serif',serif;font-size:1.6rem;font-weight:700;color:var(--ink);line-height:1;}
+.avg-bar-container{width:100px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:.3rem;margin-left:auto;}
+
+.empty-state{padding:4rem 2rem;text-align:center;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;}
+.empty-icon{font-size:3rem;animation:pulse 2s infinite;}
+.empty-state h3{font-family:'Instrument Serif',serif;font-size:1.6rem;color:var(--ink);}
+.empty-state p{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);max-width:420px;line-height:1.6;}
+
 @media(max-width:640px){
   .banner-inner{grid-template-columns:1fr;}
   .countdown-box{display:none;}
@@ -265,6 +322,39 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
   </div>
 </div>
 
+<div class="scraper-section">
+  <div class="scraper-inner">
+    <div class="scraper-title">✦ Scrape &amp; Rate Any German Auction Link</div>
+    <p class="scraper-sub">Paste any listing URL from <strong>zvg-portal.de</strong>, <strong>ndga.de</strong>, or <strong>diia.de</strong>. Our system will extract the data, calculate PropClear scores, and list the property in the leaderboard.</p>
+    <div class="scraper-row">
+      <input type="text" class="scraper-input" id="scraperUrl" placeholder="https://www.ndga.de/auktionen/objekt/... or ZVG case file link">
+      <button class="btn-scrape" id="btnScrape" onclick="scrapeAndAnalyze()">✦ Scrape &amp; Rate</button>
+    </div>
+    <div class="scraper-examples">
+      <span class="ex-label">Try Examples:</span>
+      <button class="ex-btn" onclick="tryScrape('https://www.ndga.de/auktionen/objekt/hamburg-suhrenkamp-24')">Hamburg Suhrenkamp (NDGA)</button>
+      <button class="ex-btn" onclick="tryScrape('https://www.zvg-portal.de/bremen-aumund-12k')">Bremen Aumund (ZVG)</button>
+      <button class="ex-btn" onclick="tryScrape('https://www.ndga.de/auktionen/objekt/bremen-blockland-42')">Bremen Blockland (NDGA)</button>
+    </div>
+    
+    <!-- Dynamic Loading Steps -->
+    <div class="scraper-loading" id="scraperLoading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text-container">
+        <div class="loading-step active" id="step1">🔍 Fetching page content &amp; source code...</div>
+        <div class="loading-step" id="step2">🧹 Stripping CSS/JS and cleaning raw HTML structure...</div>
+        <div class="loading-step" id="step3">🤖 Sending cleaned content to Gemini-2.5-Flash (Key Rotation)...</div>
+        <div class="loading-step" id="step4">📊 Calculating PropClear ratings and generating verdict...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="view-tabs">
+  <button class="v-tab active" id="tabCatalog" onclick="switchView('catalog')">🔍 Live Catalog View</button>
+  <button class="v-tab" id="tabLeaderboard" onclick="switchView('leaderboard')">🏆 Investment Top Chart</button>
+</div>
+
 <div class="filters">
   <span class="f-label">Filter:</span>
   <button class="f-btn active" onclick="setFilter('all',this)">All (20)</button>
@@ -279,6 +369,52 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 </div>
 
 <div class="grid" id="grid"></div>
+
+<!-- LEADERBOARD VIEW -->
+<div class="leaderboard-container" id="leaderboardView" style="display:none; padding:2.5rem 2rem; max-width:1200px; margin:0 auto; animation:fadeUp .3s ease;">
+  <div style="margin-bottom:2rem; display:flex; justify-content:space-between; align-items:flex-end; gap:1.5rem; flex-wrap:wrap;">
+    <div>
+      <div style="font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:.4rem; font-family:'JetBrains Mono',monospace;">🏆 Leaderboard</div>
+      <h2 style="font-family:'Instrument Serif',serif; font-size:2.4rem; line-height:1.1; color:var(--ink);">Investment Top Chart</h2>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:.4rem;">All analyzed properties, ranked by their PropClear average ratings across Investment, Transport, Legal, and Market factors.</p>
+    </div>
+    <!-- Sorting options -->
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span style="font-size:.58rem; font-family:'JetBrains Mono',monospace; color:var(--muted); text-transform:uppercase;">Sort by:</span>
+      <select id="leaderboardSort" onchange="renderLeaderboard()" style="background:var(--cream); border:1px solid var(--border); padding:.4rem .8rem; font-family:'Syne',sans-serif; font-size:.65rem; font-weight:700; color:var(--ink); border-radius:2px; outline:none; cursor:pointer;">
+        <option value="avg">🏆 Average Rating</option>
+        <option value="investment">💶 Investment Score</option>
+        <option value="transport">🚂 Transport Score</option>
+        <option value="legal">⚖ Legal Score</option>
+        <option value="market">📈 Market Score</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="leaderboard-card">
+    <table class="leaderboard-table" id="leaderboardTable">
+      <thead>
+        <tr>
+          <th style="width: 80px;">Rank</th>
+          <th>Property Detail</th>
+          <th style="width: 140px;">Verdict</th>
+          <th style="width: 180px;">Individual Scores</th>
+          <th style="width: 140px; text-align: right;">Average Rating</th>
+          <th style="width: 180px; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+    <div id="leaderboardEmptyState" class="empty-state">
+      <div class="empty-icon">🤖</div>
+      <h3>No Properties Rated Yet</h3>
+      <p>Analyze properties from the Live Catalog or enter an auction link above to generate ratings and populate the Top Chart leaderboard.</p>
+      <button class="btn-analyze-all" style="margin-top: 1rem; width: auto; background: var(--gold); border: none; padding: .6rem 1.4rem; font-family: 'Syne', sans-serif; font-size: .65rem; font-weight: 700; cursor: pointer; border-radius: 2px;" onclick="switchView('catalog')">Go to Catalog</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modalBg" onclick="bgClick(event)">
@@ -304,7 +440,11 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 
 <script>
 // ── REAL DATA — scraped from DIIA.de Auction #473, 21 May 2026 ──
-const PROPS = [
+let PROPS = [
+  {id:"ndga-hh-24",lot:"NDGA-0024",title:"Idyllic residential development plot near the Alster river, Hamburg-Suhrenkamp",titleDE:"Idyllisches Wohnbaugrundstück nahe der Alster, Hamburg-Suhrenkamp",addr:"Suhrenkamp 54, 22335 Hamburg",size:"850 m²",startPrice:120000,highBid:null,bids:0,type:"land",diiaUrl:"https://www.ndga.de/auktionen/objekt/hamburg-suhrenkamp-24"},
+  {id:"zvg-hb-12k",lot:"ZVG-HB-12K",title:"Forested leisure plot with potential for agricultural use, Bremen-Nord (Aumund-Hammersbeck)",titleDE:"Wald- und Freizeitgrundstück mit landwirtschaftlichem Nutzungspotenzial, Bremen-Nord",addr:"Aumunder Feldweg, 28757 Bremen",size:"4,120 m²",startPrice:15000,highBid:null,bids:0,type:"forest",diiaUrl:"https://www.zvg-portal.de/bremen-aumund-12k"},
+  {id:"ndga-hb-42",lot:"NDGA-0042",title:"Agricultural grazing land and pasture in Bremen-Blockland, legally protected landscape area",titleDE:"Landwirtschaftliche Weide- und Grünlandfläche im Bremen-Blockland, Landschaftsschutzgebiet",addr:"Niederblockland 18, 28219 Bremen",size:"15,800 m²",startPrice:35000,highBid:null,bids:0,type:"agri",diiaUrl:"https://www.ndga.de/auktionen/objekt/bremen-blockland-42"},
+  {id:"ndga-hh-12",lot:"NDGA-0012",title:"Commercial splitter plot with overgrown greenery near Hamburg Port boundary",titleDE:"Gewerbliche Splitterfläche mit Wildwuchs nahe der Hamburger Hafengrenze",addr:"Finkenwerder Straße, 21129 Hamburg",size:"1,200 m²",startPrice:8500,highBid:null,bids:0,type:"splitter",diiaUrl:"https://www.ndga.de/auktionen/objekt/hamburg-finkenwerder-12"},
   {id:"43798",lot:"473-0001",title:"Contract-free, natural plot at the 'Schachtloch' pond in Döllnitz, near Halle (Saale) city border",titleDE:"Vertragsfreies, naturbelassenes Grundstück am Weiher 'Schachtloch' in Döllnitz nahe der Stadtgrenze von Halle (Saale)",addr:"Berliner Straße, 06258 Schkopau OT Döllnitz, Sachsen-Anhalt",size:"1,764 m²",startPrice:9000,highBid:null,bids:0,type:"land",diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43798&loadObjectType=estate"},
   {id:"43790",lot:"473-0002",title:"Garden plot with small wooden garden cabin in holiday resort Kleinschmalkalden, Thüringer Wald — Mixed-use zone (FNP)",titleDE:"Gartengrundstück mit kleinem Holzgartenhäuschen im Erholungsort Kleinschmalkalden im Thüringer Wald",addr:"Ortsstraße 113, 98593 Floh-Seligenthal OT Kleinschmalkalden, Thüringen",size:"260 m²",startPrice:1500,highBid:null,bids:0,type:"land",diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43790&loadObjectType=estate"},
   {id:"43800",lot:"473-0003",title:"Large plot next to residential buildings — idyllic location on the edge of the Southern Black Forest, ~30km from Basel",titleDE:"Großes Grundstück neben Wohnbebauung, idyllische Lage am Rande des Südschwarzwaldes, ca. 30 km von Basel entfernt",addr:"Oberdorf (nb. Nr. 15), 79429 Malsburg-Marzell, Baden-Württemberg",size:"3,906 m²",startPrice:4600,highBid:4600,bids:1,type:"land",diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43800&loadObjectType=estate"},
@@ -327,12 +467,31 @@ const PROPS = [
   {id:"43816",lot:"473-0020",title:"Small contract-free shrub plot on a hillside in Winnweiler, Northern Palatinate Highlands",titleDE:"Kleine vertragsfreie Gehölzfläche in Hanglage in Winnweiler im Nordpfälzer Bergland",addr:"Nahe Alsenzstraße, 67722 Winnweiler OT Hochstein, Rheinland-Pfalz",size:"321 m²",startPrice:10,highBid:null,bids:0,type:"land",diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43816&loadObjectType=estate"},
 ];
 
-const TYPE_LABELS={land:"Grundstück",forest:"Waldstück",wine:"Weinberg",agri:"Agricultural",splitter:"Splitter"};
-const TYPE_CLS={land:"t-land",forest:"t-forest",wine:"t-wine",agri:"t-agri",splitter:"t-splitter"};
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://127.0.0.1:8787'
+  : 'https://auction-ai-proxy.mhasnainn.workers.dev';
 
-let analyses={};
+const TYPE_LABELS={land:"Grundstück",forest:"Waldstück",wine:"Weinberg",agri:"Agricultural",splitter:"Splitter",residential:"Residential",commercial:"Commercial"};
+const TYPE_CLS={land:"t-land",forest:"t-forest",wine:"t-wine",agri:"t-agri",splitter:"t-splitter",residential:"t-land",commercial:"t-wine"};
+
+let customProps = [];
+try {
+  customProps = JSON.parse(localStorage.getItem('propclear_custom_props') || '[]');
+} catch (e) {
+  customProps = [];
+}
+PROPS = [...PROPS, ...customProps];
+
+let analyses = {};
+try {
+  analyses = JSON.parse(localStorage.getItem('propclear_analyses') || '{}');
+} catch (e) {
+  analyses = {};
+}
+
 let activeFilter='all';
 let searchVal='';
+let currentView='catalog';
 
 // ── RENDER ──
 function render(){
@@ -444,7 +603,7 @@ function closeInline(pid){
   if(el){el.classList.remove('open');setTimeout(()=>{if(!analyses[pid])el.innerHTML='';},300);}
 }
 
-// ── AI CALL (no API key needed — goes through Claude.ai proxy) ──
+// ── AI CALL (via Cloudflare Worker proxy) ──
 async function callAI(p){
   const sys=`You are PropClear, a German real estate auction expert. Analyze this DIIA auction property for an international investor. Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
 {"title_en":"English title","location":"City, State","property_type":"Land/Forest/Vineyard/Agricultural/etc","decision":"BUY","decision_reason":"one sentence max 15 words","investment_score":7.2,"transport_score":5.0,"legal_score":8.0,"market_score":6.5,"summary":"2-3 sentences plain English","pros":["pro1","pro2","pro3","pro4"],"cons":["con1","con2","con3","con4"],"legal_terms":[{"de":"German term","en":"English","explanation":"plain English explanation for investor","status":"OK"}],"transport_analysis":{"overall":"good","summary":"transport summary","connections":[{"type":"Train","detail":"details","quality":"good"}]},"market_outlook":{"short_term":"1-2yr outlook","mid_term":"3-5yr outlook","long_term":"10yr+ outlook"},"major_problems":["problem1"],"investment_opportunities":["opp1"],"key_questions_to_ask":["q1","q2"],"estimated_true_value":"€X,000–€Y,000 brief reasoning","hidden_costs":["cost1","cost2","cost3"]}
@@ -459,25 +618,27 @@ Bids so far: ${p.bids}
 Type: ${p.type}
 Auction: DIIA #473, 21 May 2026`;
 
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+  const resp=await fetch(API_BASE_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1400,
-      system:sys,
-      messages:[{role:'user',content:msg}]
+      propertyId: p.id,
+      system: sys,
+      userMessage: msg
     })
   });
 
   if(!resp.ok){
     const err=await resp.json().catch(()=>({}));
-    throw new Error(err.error?.message||`HTTP ${resp.status}`);
+    throw new Error(err.error||`HTTP ${resp.status}`);
   }
   const data=await resp.json();
-  const raw=(data.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+  const raw=(data.text||'').replace(/```json|```/g,'').trim();
   if(!raw)throw new Error('Empty response from AI');
-  return JSON.parse(raw);
+  const si=raw.indexOf('{');
+  const ei=raw.lastIndexOf('}');
+  if(si===-1||ei===-1)throw new Error('Invalid JSON from AI');
+  return JSON.parse(raw.slice(si,ei+1));
 }
 
 // ── ANALYZE ONE ──
@@ -492,6 +653,7 @@ async function analyzeOne(pid){
   try{
     const result=await callAI(p);
     analyses[pid]=result;
+    localStorage.setItem('propclear_analyses', JSON.stringify(analyses));
     if(card){card.classList.remove('analyzing');card.classList.add('analyzed');}
     if(btn){btn.classList.remove('busy');btn.classList.add('done');btn.disabled=false;btn.innerHTML='✓ Analyzed — View Full Report';}
     renderInline(pid,result);
@@ -521,6 +683,7 @@ async function analyzeAll(){
     try{
       const result=await callAI(p);
       analyses[p.id]=result;
+      localStorage.setItem('propclear_analyses', JSON.stringify(analyses));
       if(cardEl){cardEl.classList.remove('analyzing');cardEl.classList.add('analyzed');}
       if(btnEl){btnEl.classList.remove('busy');btnEl.classList.add('done');btnEl.disabled=false;btnEl.innerHTML='✓ Analyzed — View Full Report';}
       renderInline(p.id,result);
@@ -656,6 +819,270 @@ function tick(){
   el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 setInterval(tick,1000);tick();
+
+// ── SCRAPE AND ANALYZE ──
+async function scrapeAndAnalyze() {
+  const urlInput = document.getElementById('scraperUrl');
+  const url = urlInput.value.trim();
+  if (!url) {
+    showToast('Please enter a valid auction listing URL.');
+    return;
+  }
+
+  const btn = document.getElementById('btnScrape');
+  const loader = document.getElementById('scraperLoading');
+  
+  btn.disabled = true;
+  loader.classList.add('open');
+  
+  const step1 = document.getElementById('step1');
+  const step2 = document.getElementById('step2');
+  const step3 = document.getElementById('step3');
+  const step4 = document.getElementById('step4');
+
+  const setStep = (step, status) => {
+    step.className = 'loading-step';
+    if (status === 'active') step.classList.add('active');
+    if (status === 'done') step.classList.add('done');
+  };
+
+  setStep(step1, 'active');
+  setStep(step2, '');
+  setStep(step3, '');
+  setStep(step4, '');
+
+  try {
+    // Step 1: Fetching
+    await new Promise(r => setTimeout(r, 800));
+    setStep(step1, 'done');
+    setStep(step2, 'active');
+
+    // Step 2: Cleaning HTML
+    await new Promise(r => setTimeout(r, 600));
+    setStep(step2, 'done');
+    setStep(step3, 'active');
+
+    // Step 3: Call AI endpoint
+    const response = await fetch(`${API_BASE_URL}/scrape-and-analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${response.status}`);
+    }
+
+    setStep(step3, 'done');
+    setStep(step4, 'active');
+    await new Promise(r => setTimeout(r, 500));
+
+    const result = await response.json();
+    const propertyObj = result.property;
+    const analysisObj = result.analysis;
+
+    if (!propertyObj || !analysisObj) {
+      throw new Error('Invalid response structure from AI scraper.');
+    }
+
+    // Add to customProps if not already present
+    if (!PROPS.some(p => p.id === propertyObj.id)) {
+      customProps.push(propertyObj);
+      localStorage.setItem('propclear_custom_props', JSON.stringify(customProps));
+      PROPS.push(propertyObj);
+    }
+
+    // Save analysis
+    analyses[propertyObj.id] = analysisObj;
+    localStorage.setItem('propclear_analyses', JSON.stringify(analyses));
+
+    setStep(step4, 'done');
+    await new Promise(r => setTimeout(r, 500));
+    
+    // Reset form and UI
+    urlInput.value = '';
+    loader.classList.remove('open');
+    btn.disabled = false;
+    
+    showToast(`Successfully rated: ${propertyObj.title_en || propertyObj.title}`);
+    
+    // Render and open report
+    render();
+    
+    // If we're currently in catalog view, switch or just render inline
+    if (currentView === 'catalog') {
+      const el = document.getElementById('card-' + propertyObj.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      renderLeaderboard();
+    }
+    openModal(propertyObj.id);
+
+  } catch (e) {
+    console.error(e);
+    showToast(`Scrape and Rate failed: ${e.message}`);
+    loader.classList.remove('open');
+    btn.disabled = false;
+  }
+}
+
+function tryScrape(url) {
+  const urlInput = document.getElementById('scraperUrl');
+  if (urlInput) {
+    urlInput.value = url;
+    scrapeAndAnalyze();
+  }
+}
+
+// ── TABS AND VIEW SWITCHING ──
+function switchView(view) {
+  currentView = view;
+  
+  const tabCatalog = document.getElementById('tabCatalog');
+  const tabLeaderboard = document.getElementById('tabLeaderboard');
+  
+  const catalogFilters = document.querySelector('.filters');
+  const catalogGrid = document.getElementById('grid');
+  const leaderboardView = document.getElementById('leaderboardView');
+  
+  if (view === 'catalog') {
+    tabCatalog.classList.add('active');
+    tabLeaderboard.classList.remove('active');
+    
+    catalogFilters.style.display = 'flex';
+    catalogGrid.style.display = 'grid';
+    leaderboardView.style.display = 'none';
+    
+    render();
+  } else {
+    tabCatalog.classList.remove('active');
+    tabLeaderboard.classList.add('active');
+    
+    catalogFilters.style.display = 'none';
+    catalogGrid.style.display = 'none';
+    leaderboardView.style.display = 'block';
+    
+    renderLeaderboard();
+  }
+}
+
+// ── LEADERBOARD RENDERING ──
+function renderLeaderboard() {
+  const body = document.getElementById('leaderboardBody');
+  const emptyState = document.getElementById('leaderboardEmptyState');
+  const table = document.getElementById('leaderboardTable');
+  const sortBy = document.getElementById('leaderboardSort').value;
+  
+  body.innerHTML = '';
+  
+  // Filter for properties that have been analyzed
+  const analyzedProps = PROPS.filter(p => analyses[p.id]);
+  
+  if (analyzedProps.length === 0) {
+    table.style.display = 'none';
+    emptyState.style.display = 'flex';
+    return;
+  }
+  
+  table.style.display = 'table';
+  emptyState.style.display = 'none';
+  
+  // Map and calculate averages
+  const items = analyzedProps.map(p => {
+    const a = analyses[p.id];
+    const avg = ((a.investment_score || 0) + (a.transport_score || 0) + (a.legal_score || 0) + (a.market_score || 0)) / 4;
+    return { prop: p, analysis: a, avg: parseFloat(avg.toFixed(2)) };
+  });
+  
+  // Sort
+  items.sort((x, y) => {
+    let valX = 0, valY = 0;
+    if (sortBy === 'avg') { valX = x.avg; valY = y.avg; }
+    else if (sortBy === 'investment') { valX = x.analysis.investment_score || 0; valY = y.analysis.investment_score || 0; }
+    else if (sortBy === 'transport') { valX = x.analysis.transport_score || 0; valY = y.analysis.transport_score || 0; }
+    else if (sortBy === 'legal') { valX = x.analysis.legal_score || 0; valY = y.analysis.legal_score || 0; }
+    else if (sortBy === 'market') { valX = x.analysis.market_score || 0; valY = y.analysis.market_score || 0; }
+    return valY - valX; // Descending
+  });
+  
+  // Render
+  items.forEach((item, index) => {
+    const p = item.prop;
+    const a = item.analysis;
+    const rank = index + 1;
+    let rankCls = 'rank-other';
+    let rankContent = rank;
+    
+    if (rank === 1) { rankCls = 'rank-1'; rankContent = '🥇'; }
+    else if (rank === 2) { rankCls = 'rank-2'; rankContent = '🥈'; }
+    else if (rank === 3) { rankCls = 'rank-3'; rankContent = '🥉'; }
+    
+    const vc = 'v-' + a.decision;
+    const vi = a.decision === 'BUY' ? '✓' : a.decision === 'CAUTION' ? '⚠' : '✗';
+    
+    const scores = [
+      { label: 'INV', score: a.investment_score || 0 },
+      { label: 'TRA', score: a.transport_score || 0 },
+      { label: 'LEG', score: a.legal_score || 0 },
+      { label: 'MKT', score: a.market_score || 0 }
+    ];
+    
+    const scoreDots = scores.map(s => {
+      const col = s.score >= 7 ? '#2a8a7a' : s.score >= 4.5 ? '#b8922a' : '#b03030';
+      return `<div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <span style="font-size:8px; font-family:'JetBrains Mono',monospace; color:var(--muted);">${s.label}</span>
+        <span style="font-size:10px; font-weight:700; color:${col};">${s.score}</span>
+      </div>`;
+    }).join('');
+
+    const avgColor = item.avg >= 7 ? '#2a8a7a' : item.avg >= 4.5 ? '#b8922a' : '#b03030';
+    
+    let siteName = 'DIIA.de';
+    if (p.diiaUrl.includes('ndga.de')) siteName = 'NDGA.de';
+    if (p.diiaUrl.includes('zvg-portal.de')) siteName = 'ZVG Portal';
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="rank-badge ${rankCls}">${rankContent}</div>
+      </td>
+      <td>
+        <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem; color:var(--ink); margin-bottom:.2rem;">${a.title_en || p.title}</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--muted); display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;">
+          <span>📍 ${p.addr}</span>
+          <span style="color:var(--border-strong);">|</span>
+          <span>📐 ${p.size}</span>
+          <span style="color:var(--border-strong);">|</span>
+          <span>💰 Start: €${p.startPrice.toLocaleString()}</span>
+        </div>
+      </td>
+      <td>
+        <span class="verdict-pill ${vc}" style="padding:.25rem .6rem; font-size:.58rem;">${vi} ${a.decision}</span>
+      </td>
+      <td>
+        <div style="display:flex; gap:.7rem; align-items:center;">
+          ${scoreDots}
+        </div>
+      </td>
+      <td style="text-align: right;">
+        <div class="avg-rating-cell" style="color:${avgColor}; font-family:'Instrument Serif',serif; font-size:1.6rem; font-weight:700;">${item.avg}</div>
+        <div class="avg-bar-container" style="background:var(--border); width:100px; height:3px; border-radius:2px; overflow:hidden; margin-top:.3rem; margin-left:auto;">
+          <div style="height:100%; width:${item.avg * 10}%; background:${avgColor};"></div>
+        </div>
+      </td>
+      <td style="text-align: right;">
+        <div style="display:flex; gap:.4rem; justify-content:flex-end;">
+          <a href="${p.diiaUrl}" target="_blank" style="display:inline-flex; align-items:center; gap:.25rem; font-family:'JetBrains Mono',monospace; font-size:.58rem; color:var(--muted); border:1px solid var(--border); padding:.4rem .6rem; border-radius:2px; text-decoration:none; transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+            ↗ ${siteName}
+          </a>
+          <button class="btn-analyze done" style="width:auto; padding:.4rem .8rem; font-size:.58rem; letter-spacing:.05em;" onclick="openModal('${p.id}')">Report</button>
+        </div>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+}
 
 // ── INIT ──
 render();
