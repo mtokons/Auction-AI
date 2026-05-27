@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base layer ── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  ::selection {
+    background: #c5a55a;
+    color: #1a1a17;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #eae5d8;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #c5a55a55;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c5a55a;
+  }
+}
+
+/* ── Utility classes not covered by Tailwind config ── */
+@layer utilities {
+  .font-syne {
+    font-family: var(--font-syne), system-ui, sans-serif;
+  }
+
+  .font-serif {
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-jetbrains), ui-monospace, 'SFMono-Regular', monospace;
+  }
+}
