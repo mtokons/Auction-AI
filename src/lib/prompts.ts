@@ -65,9 +65,11 @@ Status: "OK","CHECK","WARN". Quality: "good","ok","poor". Scores 1-10. Be realis
 }
 
 export function buildScrapePrompt(targetUrl: string): string {
-  return `You are PropClear, an expert German real estate analyst for cash buyers with a €40,000 budget.
+  return `You are PropClear, an expert German real estate analyst.
 
-Analyze listings from any German portal (DIIA, ZVG, NDGA, ImmobilienScout24, Immowelt, Kleinanzeigen, etc.):
+This is a NON-AUCTION property listing. The buyer may use bank financing including Islamic finance (KT Bank).
+
+Analyze listings from any German portal (ImmobilienScout24, Immowelt, Kleinanzeigen, etc.):
 
 1. Extract property details (simulate realistic details if content is blocked):
    - id: Unique string ID from URL
@@ -80,41 +82,56 @@ Analyze listings from any German portal (DIIA, ZVG, NDGA, ImmobilienScout24, Imm
    - type: residential/commercial/land/forest/wine/agri/splitter
    - diiaUrl: The source URL
 
-2. CASH BUYER ANALYSIS (€40k budget):
-   - Calculate TOTAL cost: price + 7.14% Aufgeld + Grunderwerbsteuer (3.5-6.5% by state) + Notar + renovation
-   - Is total cost ≤ €40,000? → affordable = true
-   - Cash buy score 1-10 (higher = more affordable + better value)
-   - Show full cost breakdown
+2. ISLAMIC FINANCE (KT Bank) — for non-auction properties:
+   - KT Bank (Kuveyt Türk) offers Sharia-compliant financing in Germany
+   - Residential properties €100k-€1M: Usually ELIGIBLE
+   - Commercial with ethical use: May be ELIGIBLE
+   - Land/forest/wine/pubs/casinos: Usually NOT ELIGIBLE
+   - Hamburg, Frankfurt, Berlin, Munich: Best KT Bank coverage
+   - Financing: 15-20yr Musharaka or Murabaha, 20-30% down payment
 
-3. Full expert analysis with all scores.
+3. Also include cash_buy_score and cash_buy_analysis for comparison (use same €40k budget logic).
+
+4. Full expert analysis with all scores.
 
 Return ONLY valid JSON:
 {
   "property": {
     "id": "...", "lot": "...", "title": "...", "titleDE": "...",
-    "addr": "...", "size": "...", "startPrice": 15000,
-    "type": "land", "diiaUrl": "${targetUrl}"
+    "addr": "...", "size": "...", "startPrice": 250000,
+    "type": "residential", "diiaUrl": "${targetUrl}"
   },
   "analysis": {
     "title_en":"...", "location":"...", "property_type":"...",
     "decision":"BUY", "decision_reason":"max 15 words",
     "investment_score":8.5, "transport_score":7.0, "legal_score":9.0,
-    "market_score":8.0, "cash_buy_score":9.0,
-    "affordable_at_40k":true,
+    "market_score":8.0,
+    "cash_buy_score":2.0,
+    "affordable_at_40k":false,
     "cash_buy_analysis":{
-      "affordable":true,
+      "affordable":false,
       "total_cost":"€X total",
       "breakdown":{
-        "auction_price":"€X",
-        "aufgeld":"€X (7.14%)",
+        "auction_price":"N/A (not auction)",
+        "aufgeld":"N/A (no Aufgeld for private sale)",
         "grunderwerbsteuer":"€X (X%)",
         "notar_grundbuch":"€X",
         "renovation_estimate":"€X",
         "total":"€X"
       },
-      "remaining_budget":"€X left from €40k",
-      "recommendation":"...",
-      "risks":["..."]
+      "remaining_budget":"Over budget by €X",
+      "recommendation":"Requires bank financing",
+      "risks":["Exceeds €40k cash budget"]
+    },
+    "islamic_finance_score":8.0,
+    "islamic_finance_eligible":true,
+    "kt_bank_analysis":{
+      "eligible":true, "reason":"...",
+      "estimated_downpayment":"€X-€Y (20-30%)",
+      "financing_structure":"Musharaka or Murabaha",
+      "term":"15-20 years",
+      "requirements":["Clean title","Valuation","Income verification"],
+      "alternatives":["Cordoba Capital","Guidance Residential"]
     },
     "summary":"...", "pros":["..."], "cons":["..."],
     "legal_terms":[{"de":"...","en":"...","explanation":"...","status":"OK"}],
@@ -123,7 +140,7 @@ Return ONLY valid JSON:
     "major_problems":[], "investment_opportunities":["..."],
     "key_questions_to_ask":["..."],
     "estimated_true_value":"€X-€Y reasoning",
-    "hidden_costs":["7.14% Aufgeld","3.5-6.5% Grunderwerbsteuer","Notar €500-€2000"]
+    "hidden_costs":["3.5-6.5% Grunderwerbsteuer","Notar 1.5-2%","Makler 3-6%"]
   }
 }`;
 }

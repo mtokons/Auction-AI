@@ -21,6 +21,7 @@ export interface Property {
   bids: number;
   type: PropertyType;
   diiaUrl: string;
+  isAuction: boolean;
 }
 
 // ── Analysis Types ──
@@ -39,6 +40,16 @@ export interface CashBuyAnalysis {
   remaining_budget: string;
   recommendation: string;
   risks: string[];
+}
+
+export interface KTBankAnalysis {
+  eligible: boolean;
+  reason: string;
+  estimated_downpayment: string;
+  financing_structure: string;
+  term: string;
+  requirements: string[];
+  alternatives: string[];
 }
 
 export interface TransportConnection {
@@ -76,9 +87,14 @@ export interface Analysis {
   transport_score: number;
   legal_score: number;
   market_score: number;
+  // Cash buyer fields (auction properties)
   cash_buy_score: number;
   affordable_at_40k: boolean;
   cash_buy_analysis: CashBuyAnalysis;
+  // Islamic finance fields (non-auction / regular listings)
+  islamic_finance_score?: number;
+  islamic_finance_eligible?: boolean;
+  kt_bank_analysis?: KTBankAnalysis;
   summary: string;
   pros: string[];
   cons: string[];
@@ -99,7 +115,7 @@ export interface ScrapeResult {
 
 // ── UI Types ──
 
-export type ViewType = 'catalog' | 'leaderboard' | 'hamburg' | 'budget';
+export type ViewType = 'catalog' | 'leaderboard' | 'hamburg' | 'budget' | 'islamic';
 
 export type FilterType = 'all' | PropertyType | 'analyzed';
 

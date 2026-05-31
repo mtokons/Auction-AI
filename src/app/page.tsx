@@ -7,7 +7,8 @@ import PropertyCard from '@/components/PropertyCard';
 import AnalysisModal from '@/components/AnalysisModal';
 import Leaderboard from '@/components/Leaderboard';
 import HamburgPremium from '@/components/HamburgPremium';
-import BudgetView from '@/components/IslamicFinanceView';
+import BudgetView from '@/components/BudgetView';
+import IslamicFinanceView from '@/components/IslamicFinanceView';
 import Footer from '@/components/Footer';
 import type { ViewType, FilterType } from '@/lib/types';
 import { TYPE_LABELS } from '@/lib/types';
@@ -18,8 +19,9 @@ function ViewTabs() {
   const tabs: { key: ViewType; label: string; icon: string }[] = [
     { key: 'catalog', label: `Catalog (${properties.length})`, icon: '📋' },
     { key: 'leaderboard', label: `Leaderboard (${analyzedCount})`, icon: '📊' },
-    { key: 'hamburg', label: 'Hamburg Premium', icon: '⚓' },
     { key: 'budget', label: 'My Budget €40k', icon: '💰' },
+    { key: 'islamic', label: 'Bank Finance', icon: '🏦' },
+    { key: 'hamburg', label: 'Hamburg Premium', icon: '⚓' },
   ];
 
   return (
@@ -148,8 +150,9 @@ function MainContent() {
         </>
       )}
       {view === 'leaderboard' && <Leaderboard />}
-      {view === 'hamburg' && <HamburgPremium />}
       {view === 'budget' && <BudgetView />}
+      {view === 'islamic' && <IslamicFinanceView />}
+      {view === 'hamburg' && <HamburgPremium />}
       <AnalysisModal />
       <Toast />
     </>

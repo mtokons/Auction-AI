@@ -221,6 +221,7 @@ Type: ${p.type}`;
           bids: 0,
           type: property.type || 'residential',
           diiaUrl: property.diiaUrl || url,
+          isAuction: false,
         };
 
         addProperty(prop);

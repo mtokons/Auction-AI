@@ -11,13 +11,13 @@ export default function Leaderboard() {
     .filter((p) => analyses[p.id])
     .map((p) => {
       const a = analyses[p.id];
-      const avg = +(
-        ((a.investment_score || 0) +
-          (a.transport_score || 0) +
-          (a.legal_score || 0) +
-          (a.market_score || 0) +
-          (a.cash_buy_score || 0)) /
-        5
+      const score5 = p.isAuction ? (a.cash_buy_score || 0) : (a.islamic_finance_score || 0);
+      const avg = +((
+        (a.investment_score || 0) +
+        (a.transport_score || 0) +
+        (a.legal_score || 0) +
+        (a.market_score || 0) +
+        score5) / 5
       ).toFixed(1);
       return { p, a, avg };
     })
@@ -51,8 +51,9 @@ export default function Leaderboard() {
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Transport</th>
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Legal</th>
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Market</th>
-            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Cash</th>
-            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">€40k</th>
+            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">5th</th>
+            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Status</th>
+            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Mode</th>
           </tr>
         </thead>
         <tbody>
@@ -84,13 +85,30 @@ export default function Leaderboard() {
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.transport_score)}</td>
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.legal_score)}</td>
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.market_score)}</td>
-                <td className="px-4 py-3.5 text-center">{scoreCell(r.a.cash_buy_score ?? 0)}</td>
                 <td className="px-4 py-3.5 text-center">
-                  {r.a.affordable_at_40k ? (
-                    <span className="text-xs text-green-600 font-bold">✓</span>
+                  {scoreCell(r.p.isAuction ? (r.a.cash_buy_score ?? 0) : (r.a.islamic_finance_score ?? 0))}
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  {r.p.isAuction ? (
+                    r.a.affordable_at_40k ? (
+                      <span className="text-xs text-green-600 font-bold">✓</span>
+                    ) : (
+                      <span className="text-xs text-red-300">✗</span>
+                    )
                   ) : (
-                    <span className="text-xs text-red-300">✗</span>
+                    r.a.islamic_finance_eligible ? (
+                      <span className="text-xs text-green-600 font-bold">✓ IF</span>
+                    ) : (
+                      <span className="text-xs text-red-300">✗ IF</span>
+                    )
                   )}
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  <span className={`text-[.5rem] font-bold font-mono px-1.5 py-0.5 rounded-[1px] ${
+                    r.p.isAuction ? 'bg-gold/10 text-gold' : 'bg-teal/10 text-teal'
+                  }`}>
+                    {r.p.isAuction ? '💰 Cash' : '🏦 Bank'}
+                  </span>
                 </td>
               </tr>
             );

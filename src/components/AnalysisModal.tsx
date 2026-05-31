@@ -24,7 +24,7 @@ export default function AnalysisModal() {
     { label: 'Transport', value: a.transport_score },
     { label: 'Legal', value: a.legal_score },
     { label: 'Market', value: a.market_score },
-    { label: 'Cash Buy', value: a.cash_buy_score ?? 0 },
+    { label: p.isAuction ? 'Cash Buy' : 'Islamic Finance', value: p.isAuction ? (a.cash_buy_score ?? 0) : (a.islamic_finance_score ?? 0) },
   ];
 
   return (
@@ -85,8 +85,8 @@ export default function AnalysisModal() {
             })}
           </div>
 
-          {/* ── Cash Buyer Cost Breakdown ── */}
-          {a.cash_buy_analysis && (
+          {/* ── Cash Buyer Cost Breakdown (auction properties) ── */}
+          {p.isAuction && a.cash_buy_analysis && (
             <div className={`border rounded-sm p-5 ${a.cash_buy_analysis.affordable ? 'bg-gradient-to-br from-emerald-500/[.08] to-teal/[.08] border-emerald-500/20' : 'bg-gradient-to-br from-red-500/[.06] to-orange-500/[.06] border-red-500/20'}`}>
               <h3 className="text-xs tracking-[.12em] uppercase text-teal font-bold mb-4 flex items-center gap-2">
                 💰 Cash Purchase Analysis (€40k Budget)
@@ -140,6 +140,50 @@ export default function AnalysisModal() {
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Islamic Finance Section (non-auction properties) ── */}
+          {!p.isAuction && a.kt_bank_analysis && (
+            <div className="bg-gradient-to-br from-emerald-500/[.08] to-teal/[.08] border border-emerald-500/20 rounded-sm p-5">
+              <h3 className="text-xs tracking-[.12em] uppercase text-teal font-bold mb-4 flex items-center gap-2">
+                ☪ KT Bank Islamic Finance Analysis
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Eligibility</div>
+                  <div className={`text-lg font-bold ${a.kt_bank_analysis.eligible ? 'text-green-600' : 'text-red-500'}`}>
+                    {a.kt_bank_analysis.eligible ? '✓ ELIGIBLE' : '✗ NOT ELIGIBLE'}
+                  </div>
+                  <p className="font-mono text-xs text-ink/50 mt-2 leading-relaxed">{a.kt_bank_analysis.reason}</p>
+                </div>
+                <div>
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Down Payment</div>
+                  <div className="font-serif text-lg text-teal mb-2">{a.kt_bank_analysis.estimated_downpayment}</div>
+                  <div className="font-mono text-xs text-ink/45">
+                    Structure: {a.kt_bank_analysis.financing_structure}<br />
+                    Term: {a.kt_bank_analysis.term}
+                  </div>
+                </div>
+              </div>
+              {a.kt_bank_analysis.requirements?.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-2">Requirements</div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {a.kt_bank_analysis.requirements.map((r, i) => (
+                      <span key={i} className="bg-teal/10 border border-teal/20 text-teal px-2 py-0.5 rounded-sm text-xs font-mono">
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {a.kt_bank_analysis.alternatives?.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-1">Alternative Lenders</div>
+                  <div className="font-mono text-xs text-ink/50">{a.kt_bank_analysis.alternatives.join(' · ')}</div>
                 </div>
               )}
             </div>
