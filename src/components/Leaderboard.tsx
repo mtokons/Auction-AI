@@ -2,7 +2,7 @@
 
 import { useStore } from '@/context/PropertyContext';
 
-type SortKey = 'avg' | 'investment_score' | 'transport_score' | 'legal_score' | 'market_score' | 'islamic_finance_score';
+type SortKey = 'avg' | 'investment_score' | 'transport_score' | 'legal_score' | 'market_score' | 'cash_buy_score';
 
 export default function Leaderboard() {
   const { properties, analyses, openModal } = useStore();
@@ -16,7 +16,7 @@ export default function Leaderboard() {
           (a.transport_score || 0) +
           (a.legal_score || 0) +
           (a.market_score || 0) +
-          (a.islamic_finance_score || 0)) /
+          (a.cash_buy_score || 0)) /
         5
       ).toFixed(1);
       return { p, a, avg };
@@ -51,8 +51,8 @@ export default function Leaderboard() {
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Transport</th>
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Legal</th>
             <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Market</th>
-            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Islamic</th>
-            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">IF</th>
+            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">Cash</th>
+            <th className="px-4 py-3 text-[.52rem] tracking-[.12em] uppercase font-bold text-center">€40k</th>
           </tr>
         </thead>
         <tbody>
@@ -84,10 +84,10 @@ export default function Leaderboard() {
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.transport_score)}</td>
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.legal_score)}</td>
                 <td className="px-4 py-3.5 text-center">{scoreCell(r.a.market_score)}</td>
-                <td className="px-4 py-3.5 text-center">{scoreCell(r.a.islamic_finance_score ?? 0)}</td>
+                <td className="px-4 py-3.5 text-center">{scoreCell(r.a.cash_buy_score ?? 0)}</td>
                 <td className="px-4 py-3.5 text-center">
-                  {r.a.islamic_finance_eligible ? (
-                    <span className="text-xs text-islamic-light font-bold">✓</span>
+                  {r.a.affordable_at_40k ? (
+                    <span className="text-xs text-green-600 font-bold">✓</span>
                   ) : (
                     <span className="text-xs text-red-300">✗</span>
                   )}

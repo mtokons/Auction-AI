@@ -7,7 +7,7 @@ import PropertyCard from '@/components/PropertyCard';
 import AnalysisModal from '@/components/AnalysisModal';
 import Leaderboard from '@/components/Leaderboard';
 import HamburgPremium from '@/components/HamburgPremium';
-import IslamicFinanceView from '@/components/IslamicFinanceView';
+import BudgetView from '@/components/IslamicFinanceView';
 import Footer from '@/components/Footer';
 import type { ViewType, FilterType } from '@/lib/types';
 import { TYPE_LABELS } from '@/lib/types';
@@ -19,7 +19,7 @@ function ViewTabs() {
     { key: 'catalog', label: `Catalog (${properties.length})`, icon: '📋' },
     { key: 'leaderboard', label: `Leaderboard (${analyzedCount})`, icon: '📊' },
     { key: 'hamburg', label: 'Hamburg Premium', icon: '⚓' },
-    { key: 'islamic', label: 'Islamic Finance', icon: '☪' },
+    { key: 'budget', label: 'My Budget €40k', icon: '💰' },
   ];
 
   return (
@@ -149,7 +149,7 @@ function MainContent() {
       )}
       {view === 'leaderboard' && <Leaderboard />}
       {view === 'hamburg' && <HamburgPremium />}
-      {view === 'islamic' && <IslamicFinanceView />}
+      {view === 'budget' && <BudgetView />}
       <AnalysisModal />
       <Toast />
     </>

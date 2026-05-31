@@ -27,8 +27,8 @@ export default function HamburgPremium() {
           ) / analyzedHamburg.length
         ).toFixed(1)
       : '—';
-  const ifEligible = analyzedHamburg.filter(
-    (p) => analyses[p.id]?.islamic_finance_eligible,
+  const affordable = analyzedHamburg.filter(
+    (p) => analyses[p.id]?.affordable_at_40k,
   ).length;
 
   return (
@@ -48,7 +48,7 @@ export default function HamburgPremium() {
             { label: 'Matching', value: String(hamburg.length) },
             { label: 'Analyzed', value: `${analyzedHamburg.length}/${hamburg.length}` },
             { label: 'Avg. Invest Score', value: avgScore },
-            { label: 'IF Eligible', value: String(ifEligible) },
+            { label: 'Affordable €40k', value: String(affordable) },
           ].map((stat) => (
             <div key={stat.label} className="bg-paper border border-ink/10 rounded-sm px-4 py-3 text-center">
               <div className="text-[.52rem] tracking-[.12em] uppercase text-ink/45 mb-1">{stat.label}</div>

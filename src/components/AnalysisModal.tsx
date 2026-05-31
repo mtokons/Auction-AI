@@ -24,7 +24,7 @@ export default function AnalysisModal() {
     { label: 'Transport', value: a.transport_score },
     { label: 'Legal', value: a.legal_score },
     { label: 'Market', value: a.market_score },
-    { label: 'Islamic Finance', value: a.islamic_finance_score ?? 0 },
+    { label: 'Cash Buy', value: a.cash_buy_score ?? 0 },
   ];
 
   return (
@@ -85,45 +85,61 @@ export default function AnalysisModal() {
             })}
           </div>
 
-          {/* ── Islamic Finance Section ── */}
-          {a.kt_bank_analysis && (
-            <div className="bg-gradient-to-br from-emerald-500/[.08] to-teal/[.08] border border-emerald-500/20 rounded-sm p-5">
+          {/* ── Cash Buyer Cost Breakdown ── */}
+          {a.cash_buy_analysis && (
+            <div className={`border rounded-sm p-5 ${a.cash_buy_analysis.affordable ? 'bg-gradient-to-br from-emerald-500/[.08] to-teal/[.08] border-emerald-500/20' : 'bg-gradient-to-br from-red-500/[.06] to-orange-500/[.06] border-red-500/20'}`}>
               <h3 className="text-xs tracking-[.12em] uppercase text-teal font-bold mb-4 flex items-center gap-2">
-                ☪ KT Bank Islamic Finance Analysis
+                💰 Cash Purchase Analysis (€40k Budget)
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Eligibility</div>
-                  <div className={`text-lg font-bold ${a.kt_bank_analysis.eligible ? 'text-islamic-light' : 'text-red-500'}`}>
-                    {a.kt_bank_analysis.eligible ? '✓ ELIGIBLE' : '✗ NOT ELIGIBLE'}
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Affordability</div>
+                  <div className={`text-lg font-bold ${a.cash_buy_analysis.affordable ? 'text-green-600' : 'text-red-500'}`}>
+                    {a.cash_buy_analysis.affordable ? '✓ AFFORDABLE' : '✗ OVER BUDGET'}
                   </div>
-                  <p className="font-mono text-xs text-ink/50 mt-2 leading-relaxed">{a.kt_bank_analysis.reason}</p>
+                  <div className="font-serif text-xl text-teal mt-2">{a.cash_buy_analysis.total_cost}</div>
+                  <div className="font-mono text-xs text-ink/45 mt-1">
+                    Remaining: <strong className="text-green-600">{a.cash_buy_analysis.remaining_budget}</strong>
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Down Payment</div>
-                  <div className="font-serif text-lg text-teal mb-2">{a.kt_bank_analysis.estimated_downpayment}</div>
-                  <div className="font-mono text-xs text-ink/45">
-                    Structure: {a.kt_bank_analysis.financing_structure}<br />
-                    Term: {a.kt_bank_analysis.term}
-                  </div>
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-1.5">Cost Breakdown</div>
+                  {a.cash_buy_analysis.breakdown && (
+                    <div className="space-y-1">
+                      {[
+                        ['Auction Price', a.cash_buy_analysis.breakdown.auction_price],
+                        ['Aufgeld (7.14%)', a.cash_buy_analysis.breakdown.aufgeld],
+                        ['Grunderwerbsteuer', a.cash_buy_analysis.breakdown.grunderwerbsteuer],
+                        ['Notar + Grundbuch', a.cash_buy_analysis.breakdown.notar_grundbuch],
+                        ['Renovation Est.', a.cash_buy_analysis.breakdown.renovation_estimate],
+                      ].map(([label, val]) => (
+                        <div key={label} className="flex justify-between font-mono text-xs text-ink/60">
+                          <span>{label}</span>
+                          <span className="font-medium">{val}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between font-mono text-sm font-bold text-ink border-t border-ink/15 pt-1 mt-1">
+                        <span>TOTAL</span>
+                        <span className="text-teal">{a.cash_buy_analysis.breakdown.total}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              {a.kt_bank_analysis.requirements?.length > 0 && (
-                <div className="mt-4">
-                  <div className="text-[.52rem] uppercase text-ink/45 mb-2">Requirements</div>
+              <div className="mt-4 bg-paper/60 rounded-sm px-3 py-2.5">
+                <div className="text-[.52rem] uppercase text-ink/45 mb-1">Recommendation</div>
+                <p className="font-mono text-xs text-ink/60 leading-relaxed">{a.cash_buy_analysis.recommendation}</p>
+              </div>
+              {a.cash_buy_analysis.risks?.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-[.52rem] uppercase text-ink/45 mb-2">Risks</div>
                   <div className="flex gap-1.5 flex-wrap">
-                    {a.kt_bank_analysis.requirements.map((r, i) => (
-                      <span key={i} className="bg-teal/10 border border-teal/20 text-teal px-2 py-0.5 rounded-sm text-xs font-mono">
+                    {a.cash_buy_analysis.risks.map((r, i) => (
+                      <span key={i} className="bg-red-500/10 border border-red-500/20 text-danger px-2 py-0.5 rounded-sm text-xs font-mono">
                         {r}
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
-              {a.kt_bank_analysis.alternatives?.length > 0 && (
-                <div className="mt-3">
-                  <div className="text-[.52rem] uppercase text-ink/45 mb-1">Alternative Lenders</div>
-                  <div className="font-mono text-xs text-ink/50">{a.kt_bank_analysis.alternatives.join(' · ')}</div>
                 </div>
               )}
             </div>
@@ -291,7 +307,7 @@ export default function AnalysisModal() {
               <div className="font-serif text-xl text-gold-light">{a.estimated_true_value || 'N/A'}</div>
             </div>
             <div className="font-mono text-xs text-white/30 max-w-xs leading-relaxed">
-              Add to price: +7.14% Aufgeld · +3.5–6.5% Grunderwerbsteuer · +€1,500–3,000 Notar
+              Total = Price + 7.14% Aufgeld + 3.5–6.5% Grunderwerbsteuer + €500–€2,000 Notar
             </div>
           </div>
         </div>

@@ -25,14 +25,20 @@ export interface Property {
 
 // ── Analysis Types ──
 
-export interface KTBankAnalysis {
-  eligible: boolean;
-  reason: string;
-  estimated_downpayment: string;
-  financing_structure: string;
-  term: string;
-  requirements: string[];
-  alternatives: string[];
+export interface CashBuyAnalysis {
+  affordable: boolean;
+  total_cost: string;
+  breakdown: {
+    auction_price: string;
+    aufgeld: string;
+    grunderwerbsteuer: string;
+    notar_grundbuch: string;
+    renovation_estimate: string;
+    total: string;
+  };
+  remaining_budget: string;
+  recommendation: string;
+  risks: string[];
 }
 
 export interface TransportConnection {
@@ -70,9 +76,9 @@ export interface Analysis {
   transport_score: number;
   legal_score: number;
   market_score: number;
-  islamic_finance_score: number;
-  islamic_finance_eligible: boolean;
-  kt_bank_analysis: KTBankAnalysis;
+  cash_buy_score: number;
+  affordable_at_40k: boolean;
+  cash_buy_analysis: CashBuyAnalysis;
   summary: string;
   pros: string[];
   cons: string[];
@@ -93,7 +99,7 @@ export interface ScrapeResult {
 
 // ── UI Types ──
 
-export type ViewType = 'catalog' | 'leaderboard' | 'hamburg' | 'islamic';
+export type ViewType = 'catalog' | 'leaderboard' | 'hamburg' | 'budget';
 
 export type FilterType = 'all' | PropertyType | 'analyzed';
 

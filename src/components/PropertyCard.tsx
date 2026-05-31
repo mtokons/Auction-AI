@@ -36,7 +36,7 @@ function InlineResult({ pid, analysis }: { pid: string; analysis: Analysis }) {
         : 'bg-red-500/15 border-red-500/35 text-red-300';
   const vi = a.decision === 'BUY' ? '✓' : a.decision === 'CAUTION' ? '⚠' : '✗';
 
-  const ifBadge = a.islamic_finance_eligible
+  const cashBadge = a.affordable_at_40k
     ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
     : 'bg-red-500/10 border-red-500/25 text-red-400';
 
@@ -50,9 +50,9 @@ function InlineResult({ pid, analysis }: { pid: string; analysis: Analysis }) {
         <span className="font-serif text-lg text-gold-light">
           {a.investment_score}/10
         </span>
-        {/* Islamic Finance badge */}
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-[.55rem] font-bold font-mono border ${ifBadge}`}>
-          ☪ {a.islamic_finance_eligible ? 'IF Eligible' : 'Not IF Eligible'} · {a.islamic_finance_score}/10
+        {/* Cash buyer badge */}
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-[.55rem] font-bold font-mono border ${cashBadge}`}>
+          💰 {a.affordable_at_40k ? 'Affordable' : 'Over Budget'} · {a.cash_buy_score}/10
         </span>
         <span className="font-mono text-[.62rem] text-white/40 leading-snug flex-1 min-w-[140px]">
           {a.decision_reason}
@@ -65,7 +65,7 @@ function InlineResult({ pid, analysis }: { pid: string; analysis: Analysis }) {
         <ScoreBar label="Transport" value={a.transport_score} />
         <ScoreBar label="Legal" value={a.legal_score} />
         <ScoreBar label="Market" value={a.market_score} />
-        <ScoreBar label="Islamic" value={a.islamic_finance_score ?? 0} />
+        <ScoreBar label="Cash Buy" value={a.cash_buy_score ?? 0} />
       </div>
 
       {/* Pros / Cons */}
@@ -106,7 +106,7 @@ function InlineResult({ pid, analysis }: { pid: string; analysis: Analysis }) {
         onClick={() => openModal(pid)}
         className="w-full bg-transparent border border-gold/30 text-gold-light px-4 py-2 font-syne text-xs font-bold tracking-wider uppercase cursor-pointer rounded-sm hover:bg-gold/10 hover:border-gold transition-all"
       >
-        → Full Report + Islamic Finance Details
+        → Full Report + Cost Breakdown
       </button>
     </div>
   );

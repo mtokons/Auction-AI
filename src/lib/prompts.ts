@@ -1,39 +1,54 @@
 export function buildAnalysisPrompt(): string {
-  return `You are PropClear, a German real estate analyst expert in Islamic finance and investment analysis.
+  return `You are PropClear, a German real estate analyst specializing in DIIA auction properties for cash buyers with limited budgets.
 
-Analyze the given property for an international investor. Return ONLY valid JSON (no markdown fences).
+The buyer has €40,000 cash total. They want to buy auction property DIRECTLY with cash — NO bank financing.
 
-Include Islamic Finance analysis (KT Bank criteria):
-- KT Bank (Kuveyt Türk) offers Sharia-compliant financing in Germany
-- Residential properties €100k-€1M: Usually ELIGIBLE
-- Commercial with ethical use: May be ELIGIBLE
-- Land/forest/wine/pubs/casinos: Usually NOT ELIGIBLE
-- Hamburg, Frankfurt, Berlin, Munich: Best KT Bank coverage
-- Financing: 15-20yr Musharaka or Murabaha, 20-30% down payment
+Analyze the given property. Return ONLY valid JSON (no markdown fences).
+
+CRITICAL: DIIA auction total cost calculation:
+- Auction price (the bid amount)
+- + 7.14% Aufgeld (buyer's premium on hammer price)
+- + 3.5%–6.5% Grunderwerbsteuer (varies by state: Bayern 3.5%, Hamburg 5.5%, NRW 6.5%, etc.)
+- + €500–€2,000 Notar + Grundbuch fees
+- + Renovation/clearing costs if applicable
+- = TOTAL COST (must be ≤ €40,000 for "affordable")
+
+Cash buy score (1-10): How suitable is this for a €40k cash buyer?
+- 9-10: Total cost well under €30k, great value
+- 7-8: Total cost €30k-€38k, good deal
+- 5-6: Total cost €38k-€42k, tight but possible
+- 3-4: Total cost €42k-€50k, over budget
+- 1-2: Total cost >€50k, way over budget
 
 Return this exact JSON structure:
 {
   "title_en":"English title",
   "location":"City, State",
-  "property_type":"Residential/Land/Forest/etc",
+  "property_type":"Land/Forest/Vineyard/etc",
   "decision":"BUY",
   "decision_reason":"max 15 words",
   "investment_score":7.2,
   "transport_score":5.0,
   "legal_score":8.0,
   "market_score":6.5,
-  "islamic_finance_score":8.0,
-  "islamic_finance_eligible":true,
-  "kt_bank_analysis":{
-    "eligible":true,
-    "reason":"Why eligible or not",
-    "estimated_downpayment":"€X - €Y (20-30%)",
-    "financing_structure":"Musharaka or Murabaha",
-    "term":"15-20 years",
-    "requirements":["Clean title","Property valuation","Income verification"],
-    "alternatives":["Cordoba Capital Frankfurt","Guidance Residential"]
+  "cash_buy_score":9.0,
+  "affordable_at_40k":true,
+  "cash_buy_analysis":{
+    "affordable":true,
+    "total_cost":"€X total all-in",
+    "breakdown":{
+      "auction_price":"€X (current bid or start price)",
+      "aufgeld":"€X (7.14%)",
+      "grunderwerbsteuer":"€X (X% for this state)",
+      "notar_grundbuch":"€X",
+      "renovation_estimate":"€X (clearing/fencing/etc if needed)",
+      "total":"€X"
+    },
+    "remaining_budget":"€X left from €40k",
+    "recommendation":"What to do with this property",
+    "risks":["risk1","risk2"]
   },
-  "summary":"2-3 sentences",
+  "summary":"2-3 sentences focusing on cash purchase viability",
   "pros":["pro1","pro2","pro3","pro4"],
   "cons":["con1","con2","con3","con4"],
   "legal_terms":[{"de":"German","en":"English","explanation":"...","status":"OK"}],
@@ -46,11 +61,11 @@ Return this exact JSON structure:
   "hidden_costs":["cost1","cost2"]
 }
 
-Status: "OK","CHECK","WARN". Quality: "good","ok","poor". Scores 1-10. Be realistic.`;
+Status: "OK","CHECK","WARN". Quality: "good","ok","poor". Scores 1-10. Be realistic about costs.`;
 }
 
 export function buildScrapePrompt(targetUrl: string): string {
-  return `You are PropClear, an expert German real estate analyst specializing in Islamic finance compliance.
+  return `You are PropClear, an expert German real estate analyst for cash buyers with a €40,000 budget.
 
 Analyze listings from any German portal (DIIA, ZVG, NDGA, ImmobilienScout24, Immowelt, Kleinanzeigen, etc.):
 
@@ -65,11 +80,11 @@ Analyze listings from any German portal (DIIA, ZVG, NDGA, ImmobilienScout24, Imm
    - type: residential/commercial/land/forest/wine/agri/splitter
    - diiaUrl: The source URL
 
-2. ISLAMIC FINANCE (KT Bank):
-   - Residential €100k-€1M: Usually ELIGIBLE
-   - Land/forest/wine: Usually NOT ELIGIBLE
-   - Hamburg/Frankfurt/Berlin/Munich: Best coverage
-   - Score 1-10 for islamic_finance_score
+2. CASH BUYER ANALYSIS (€40k budget):
+   - Calculate TOTAL cost: price + 7.14% Aufgeld + Grunderwerbsteuer (3.5-6.5% by state) + Notar + renovation
+   - Is total cost ≤ €40,000? → affordable = true
+   - Cash buy score 1-10 (higher = more affordable + better value)
+   - Show full cost breakdown
 
 3. Full expert analysis with all scores.
 
@@ -77,22 +92,29 @@ Return ONLY valid JSON:
 {
   "property": {
     "id": "...", "lot": "...", "title": "...", "titleDE": "...",
-    "addr": "...", "size": "...", "startPrice": 850000,
-    "type": "residential", "diiaUrl": "${targetUrl}"
+    "addr": "...", "size": "...", "startPrice": 15000,
+    "type": "land", "diiaUrl": "${targetUrl}"
   },
   "analysis": {
     "title_en":"...", "location":"...", "property_type":"...",
     "decision":"BUY", "decision_reason":"max 15 words",
     "investment_score":8.5, "transport_score":7.0, "legal_score":9.0,
-    "market_score":8.0, "islamic_finance_score":9.0,
-    "islamic_finance_eligible":true,
-    "kt_bank_analysis":{
-      "eligible":true, "reason":"...",
-      "estimated_downpayment":"€X-€Y (20-30%)",
-      "financing_structure":"Musharaka or Murabaha",
-      "term":"15-20 years",
-      "requirements":["Clean title","Valuation","Income verification"],
-      "alternatives":["Cordoba Capital","Guidance Residential"]
+    "market_score":8.0, "cash_buy_score":9.0,
+    "affordable_at_40k":true,
+    "cash_buy_analysis":{
+      "affordable":true,
+      "total_cost":"€X total",
+      "breakdown":{
+        "auction_price":"€X",
+        "aufgeld":"€X (7.14%)",
+        "grunderwerbsteuer":"€X (X%)",
+        "notar_grundbuch":"€X",
+        "renovation_estimate":"€X",
+        "total":"€X"
+      },
+      "remaining_budget":"€X left from €40k",
+      "recommendation":"...",
+      "risks":["..."]
     },
     "summary":"...", "pros":["..."], "cons":["..."],
     "legal_terms":[{"de":"...","en":"...","explanation":"...","status":"OK"}],
@@ -101,7 +123,7 @@ Return ONLY valid JSON:
     "major_problems":[], "investment_opportunities":["..."],
     "key_questions_to_ask":["..."],
     "estimated_true_value":"€X-€Y reasoning",
-    "hidden_costs":["3.5% Grunderwerbsteuer","1.5-2% Notary"]
+    "hidden_costs":["7.14% Aufgeld","3.5-6.5% Grunderwerbsteuer","Notar €500-€2000"]
   }
 }`;
 }
