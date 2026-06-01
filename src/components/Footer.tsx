@@ -8,7 +8,7 @@ export default function Footer() {
           ⚖ <strong className="text-white/35">Disclaimer:</strong> AI-generated
           analysis for informational purposes only. Not legal, financial, or
           investment advice. Always verify information independently and consult
-          qualified professionals before purchasing real estate. PropClear is not
+          qualified professionals before purchasing real estate. Auction AI is not
           affiliated with DIIA, KT Bank, or any listed property.
         </p>
       </div>

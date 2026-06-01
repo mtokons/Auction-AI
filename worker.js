@@ -1,5 +1,9 @@
 export default {
-  async fetch(request, env) {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(runSync(env));
+  },
+
+  async fetch(request, env, ctx) {
     // ── MULTIPLE API KEYS — add as many as you want ──
     const API_KEYS = [
       env.GEMINI_API_KEY_1,
@@ -63,6 +67,8 @@ export default {
       if (KV) {
         const list = await KV.list();
         for (const key of list.keys) {
+          // Skip array lists keys
+          if (key.name === 'active_listings' || key.name === 'archived_listings') continue;
           const val = await KV.get(key.name, 'json');
           if (val) results[key.name] = val;
         }
@@ -119,6 +125,49 @@ export default {
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
+    }
+
+    // ── LISTINGS ENDPOINT ──
+    if (request.method === 'GET' && url.pathname === '/listings') {
+      let active = [];
+      if (KV) {
+        active = await KV.get('active_listings', 'json') || [];
+      }
+      if (active.length === 0) {
+        // Fallback to static properties to ensure page loads with sample listings
+        active = DEFAULT_PROPERTIES_SEED;
+      }
+      return new Response(JSON.stringify(active), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+      });
+    }
+
+    // ── ARCHIVE ENDPOINT ──
+    if (request.method === 'GET' && url.pathname === '/archive') {
+      let archived = [];
+      if (KV) {
+        archived = await KV.get('archived_listings', 'json') || [];
+      }
+      return new Response(JSON.stringify(archived), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+      });
+    }
+
+    // ── TRIGGER MANUAL SYNC ──
+    if (request.method === 'GET' && url.pathname === '/sync') {
+      if (!KV) {
+        return new Response(JSON.stringify({ error: 'KV store is not bound' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        });
+      }
+      ctx.waitUntil(runSync(env));
+      return new Response(JSON.stringify({ message: 'Periodical sync triggered in background' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+      });
     }
 
     // ── TEST ENDPOINT ──
@@ -233,7 +282,7 @@ export default {
           fetchError = e.message;
         }
 
-        const sys = `You are PropClear, an expert German real estate analyst specializing in Islamic finance compliance and investment analysis.
+        const sys = `You are Auction AI, an expert German real estate analyst specializing in Islamic finance compliance and investment analysis.
 
 Your task is to analyze German real estate listings from any portal (DIIA, ZVG, NDGA, ImmobilienScout24, Immowelt, Kleinanzeigen, etc.) and:
 
@@ -349,6 +398,28 @@ Return ONLY valid JSON (no markdown fences):
           try {
             await saveToStore(cacheKey, parsed);
             await saveToStore(parsed.property.id, parsed.analysis);
+
+            // Also dynamically add it to active listings if not present
+            if (KV) {
+              let active = await KV.get('active_listings', 'json') || [];
+              if (!active.some(p => p.id === parsed.property.id)) {
+                active.push({
+                  id: parsed.property.id,
+                  lot: parsed.property.lot || 'CUSTOM',
+                  title: parsed.property.title,
+                  titleDE: parsed.property.titleDE || parsed.property.title,
+                  addr: parsed.property.addr || '',
+                  size: parsed.property.size || '',
+                  startPrice: parsed.property.startPrice || 0,
+                  highBid: null,
+                  bids: 0,
+                  type: parsed.property.type || 'residential',
+                  diiaUrl: parsed.property.diiaUrl || targetUrl,
+                  isAuction: false
+                });
+                await KV.put('active_listings', JSON.stringify(active));
+              }
+            }
           } catch (e) { 
             console.error('Cache save error:', e.message);
           }
@@ -436,3 +507,301 @@ Return ONLY valid JSON (no markdown fences):
     }
   }
 };
+
+// ── PERIODICAL SYNCHRONIZER ──
+async function runSync(env) {
+  const KV = env.KV;
+  if (!KV) {
+    console.error('KV store is missing. Cannot perform sync.');
+    return { success: false, error: 'KV missing' };
+  }
+
+  console.log('--- Nightly DIIA Sync Started ---');
+  let diiaActiveIds = [];
+  let scrapeSuccess = false;
+
+  try {
+    const res = await fetch('https://www.diia.de/?thema=auctions', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8'
+      }
+    });
+    if (res.ok) {
+      const html = await res.text();
+      const ids = new Set();
+      const regex = /loadObjectId=(\d+)/g;
+      let match;
+      while ((match = regex.exec(html)) !== null) {
+        ids.add(match[1]);
+      }
+      diiaActiveIds = Array.from(ids);
+      scrapeSuccess = diiaActiveIds.length > 0;
+      console.log(`Scraped DIIA Active IDs: ${diiaActiveIds.length}`);
+    } else {
+      console.error(`DIIA index scrape failed with status ${res.status}`);
+    }
+  } catch (e) {
+    console.error('Failed to scrape DIIA active list:', e.message);
+  }
+
+  // Load existing lists from KV
+  let active = await KV.get('active_listings', 'json') || [];
+  let archived = await KV.get('archived_listings', 'json') || [];
+
+  // Seed default properties if KV is empty to ensure smooth initial launch
+  if (active.length === 0 && archived.length === 0) {
+    console.log('Seeding default listings list in KV database');
+    active = DEFAULT_PROPERTIES_SEED;
+  }
+
+  // Identify new properties (IDs from scrape not in active or archived)
+  const newIds = diiaActiveIds.filter(id => !active.some(p => p.id === id) && !archived.some(p => p.id === id));
+  console.log(`New properties to analyze: ${newIds.length}`);
+
+  const addedProperties = [];
+  const errors = [];
+
+  for (let i = 0; i < newIds.length; i++) {
+    const id = newIds[i];
+    const targetUrl = `https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=${id}&loadObjectType=estate`;
+    console.log(`[Queue ${i + 1}/${newIds.length}] Fetching new listing: ${targetUrl}`);
+
+    try {
+      const detailsRes = await fetch(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+      });
+      if (!detailsRes.ok) {
+        errors.push(`Details fetch failed for ${id}: HTTP ${detailsRes.status}`);
+        continue;
+      }
+      const rawHtml = await detailsRes.text();
+      
+      // Clean HTML
+      const cleaned = rawHtml
+        .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
+        .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
+        .replace(/<svg[^>]*>([\s\S]*?)<\/svg>/gi, '')
+        .replace(/<\/?[^>]+(>|$)/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Setup Gemini call
+      const sysPrompt = `You are Auction AI, an expert German real estate analyst specializing in Islamic finance compliance and investment analysis.
+Analyze the listing and return ONLY valid JSON (no markdown blocks, no formatting fences):
+{
+  "property": {
+    "id": "${id}",
+    "lot": "...",
+    "title": "...",
+    "titleDE": "...",
+    "addr": "...",
+    "size": "...",
+    "startPrice": 10000,
+    "type": "residential/land/forest/wine/agri/splitter",
+    "diiaUrl": "${targetUrl}"
+  },
+  "analysis": {
+    "title_en": "...",
+    "location": "...",
+    "property_type": "...",
+    "decision": "BUY/CAUTION/AVOID",
+    "decision_reason": "one sentence max 15 words",
+    "investment_score": 8.0,
+    "transport_score": 7.0,
+    "legal_score": 9.0,
+    "market_score": 8.0,
+    "islamic_finance_score": 9.0,
+    "islamic_finance_eligible": true,
+    "kt_bank_analysis": {
+      "eligible": true,
+      "reason": "...",
+      "estimated_downpayment": "...",
+      "financing_structure": "Musharaka or Murabaha",
+      "term": "15-20 years typical",
+      "requirements": ["Clean title", "Income verification"],
+      "alternatives": ["Cordoba Capital"]
+    },
+    "summary": "...",
+    "pros": ["..."],
+    "cons": ["..."],
+    "legal_terms": [{"de": "Grundbuch", "en": "Land Registry", "explanation": "...", "status": "OK"}],
+    "transport_analysis": {"overall": "good", "summary": "...", "connections": []},
+    "market_outlook": {"short_term": "...", "mid_term": "...", "long_term": "..."},
+    "major_problems": [],
+    "investment_opportunities": [],
+    "key_questions_to_ask": [],
+    "estimated_true_value": "...",
+    "hidden_costs": []
+  }
+}`;
+
+      const userMsg = `Extract details and analyze this listing:\n\n${cleaned.slice(0, 15000)}`;
+
+      // Gemini Key Rotation
+      const API_KEYS = [
+        env.GEMINI_API_KEY_1,
+        env.GEMINI_API_KEY_2,
+        env.GEMINI_API_KEY_3,
+      ].filter(k => k && typeof k === 'string' && k.trim() !== '' && !k.includes('YOUR_'));
+
+      let geminiText = null;
+      let lastErr = '';
+      for (const key of API_KEYS) {
+        try {
+          const resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: sysPrompt }] },
+                contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+              })
+            }
+          );
+          const data = await resp.json();
+          if (resp.ok && !data.error) {
+            geminiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            break;
+          } else {
+            lastErr = data?.error?.message || 'Error response';
+          }
+        } catch (e) {
+          lastErr = e.message;
+        }
+      }
+
+      // If gemini-2.0-flash URL failed, fallback to 1.5 URL
+      if (!geminiText) {
+        for (const key of API_KEYS) {
+          try {
+            const resp = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  system_instruction: { parts: [{ text: sysPrompt }] },
+                  contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+                  generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+                })
+              }
+            );
+            const data = await resp.json();
+            if (resp.ok && !data.error) {
+              geminiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              break;
+            } else {
+              lastErr = data?.error?.message || 'Error response';
+            }
+          } catch (e) {
+            lastErr = e.message;
+          }
+        }
+      }
+
+      if (!geminiText) {
+        errors.push(`Gemini API failed for ${id}: ${lastErr}`);
+        continue;
+      }
+
+      const raw = geminiText.replace(/```json|```/g, '').trim();
+      const si = raw.indexOf('{'), ei = raw.lastIndexOf('}');
+      if (si === -1 || ei === -1) {
+        errors.push(`Invalid JSON returned from Gemini for ${id}`);
+        continue;
+      }
+
+      const parsed = JSON.parse(raw.slice(si, ei + 1));
+      if (parsed.property && parsed.analysis) {
+        // Save analysis to KV
+        await KV.put(parsed.property.id, JSON.stringify(parsed.analysis));
+        
+        // Add listing to active
+        const pObj = {
+          id: parsed.property.id,
+          lot: parsed.property.lot || `DIIA-${id}`,
+          title: parsed.property.title,
+          titleDE: parsed.property.titleDE || parsed.property.title,
+          addr: parsed.property.addr || 'Germany',
+          size: parsed.property.size || 'N/A',
+          startPrice: parsed.property.startPrice || 0,
+          highBid: null,
+          bids: 0,
+          type: parsed.property.type || 'residential',
+          diiaUrl: parsed.property.diiaUrl || targetUrl,
+          isAuction: true
+        };
+        active.push(pObj);
+        addedProperties.push(pObj);
+        console.log(`[Success] Analyzed & Saved property: ${pObj.title}`);
+      }
+
+    } catch (err) {
+      console.error(`Error processing ${id}:`, err.message);
+      errors.push(`Error on ${id}: ${err.message}`);
+    }
+
+    // Comply with free tier limits: 10s sequential pause between tasks
+    if (i < newIds.length - 1) {
+      console.log('Sleeping 10 seconds to respect Gemini Free Tier API rate limits...');
+      await new Promise(r => setTimeout(r, 10000));
+    }
+  }
+
+  // Archive outdated listings (listings no longer returned by scrape, but were active diia listings)
+  if (scrapeSuccess) {
+    const diiaListings = active.filter(p => p.diiaUrl && p.diiaUrl.includes('diia.de'));
+    const outdated = diiaListings.filter(p => !diiaActiveIds.includes(p.id));
+
+    if (outdated.length > 0) {
+      console.log(`Moving ${outdated.length} outdated listings to history archive...`);
+      active = active.filter(p => !outdated.some(o => o.id === p.id));
+      for (const o of outdated) {
+        if (!archived.some(a => a.id === o.id)) {
+          archived.push(o);
+        }
+      }
+    }
+  }
+
+  // Persist updated listing states back to KV
+  await KV.put('active_listings', JSON.stringify(active));
+  await KV.put('archived_listings', JSON.stringify(archived));
+
+  console.log(`--- Nightly DIIA Sync Completed. Added: ${addedProperties.length}, Errors: ${errors.length} ---`);
+  return { success: true, added: addedProperties.length, errors };
+}
+
+// ── DEFAULT PROPERTIES SEED ──
+const DEFAULT_PROPERTIES_SEED = [
+  {id:"ndga-hh-24",lot:"NDGA-0024",title:"Idyllic residential development plot near the Alster river, Hamburg-Suhrenkamp",titleDE:"Idyllisches Wohnbaugrundstück nahe der Alster, Hamburg-Suhrenkamp",addr:"Suhrenkamp 54, 22335 Hamburg",size:"850 m²",startPrice:120000,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.ndga.de/auktionen/objekt/hamburg-suhrenkamp-24"},
+  {id:"zvg-hb-12k",lot:"ZVG-HB-12K",title:"Forested leisure plot with potential for agricultural use, Bremen-Nord (Aumund-Hammersbeck)",titleDE:"Wald- und Freizeitgrundstück mit landwirtschaftlichem Nutzungspotenzial, Bremen-Nord",addr:"Aumunder Feldweg, 28757 Bremen",size:"4,120 m²",startPrice:15000,highBid:null,bids:0,type:"forest",isAuction:true,diiaUrl:"https://www.zvg-portal.de/bremen-aumund-12k"},
+  {id:"ndga-hb-42",lot:"NDGA-0042",title:"Agricultural grazing land and pasture in Bremen-Blockland, legally protected landscape area",titleDE:"Landwirtschaftliche Weide- und Grünlandfläche im Bremen-Blockland, Landschaftsschutzgebiet",addr:"Niederblockland 18, 28219 Bremen",size:"15,800 m²",startPrice:35000,highBid:null,bids:0,type:"agri",isAuction:true,diiaUrl:"https://www.ndga.de/auktionen/objekt/bremen-blockland-42"},
+  {id:"ndga-hh-12",lot:"NDGA-0012",title:"Commercial splitter plot with overgrown greenery near Hamburg Port boundary",titleDE:"Gewerbliche Splitterfläche mit Wildwuchs nahe der Hamburger Hafengrenze",addr:"Finkenwerder Straße, 21129 Hamburg",size:"1,200 m²",startPrice:8500,highBid:null,bids:0,type:"splitter",isAuction:true,diiaUrl:"https://www.ndga.de/auktionen/objekt/hamburg-finkenwerder-12"},
+  {id:"43798",lot:"473-0001",title:"Contract-free, natural plot at the 'Schachtloch' pond in Döllnitz, near Halle (Saale) city border",titleDE:"Vertragsfreies, naturbelassenes Grundstück am Weiher 'Schachtloch' in Döllnitz nahe der Stadtgrenze von Halle (Saale)",addr:"Berliner Straße, 06258 Schkopau OT Döllnitz, Sachsen-Anhalt",size:"1,764 m²",startPrice:9000,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43798&loadObjectType=estate"},
+  {id:"43790",lot:"473-0002",title:"Garden plot with small wooden garden cabin in holiday resort Kleinschmalkalden, Thüringer Wald",titleDE:"Gartengrundstück mit kleinem Holzgartenhäuschen im Erholungsort Kleinschmalkalden im Thüringer Wald",addr:"Ortsstraße 113, 98593 Floh-Seligenthal OT Kleinschmalkalden, Thüringen",size:"260 m²",startPrice:1500,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43790&loadObjectType=estate"},
+  {id:"43800",lot:"473-0003",title:"Large plot next to residential buildings — idyllic location on the edge of the Southern Black Forest, ~30km from Basel",titleDE:"Großes Grundstück neben Wohnbebauung, idyllische Lage am Rande des Südschwarzwaldes, ca. 30 km von Basel entfernt",addr:"Oberdorf (nb. Nr. 15), 79429 Malsburg-Marzell, Baden-Württemberg",size:"3,906 m²",startPrice:4600,highBid:4600,bids:1,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43800&loadObjectType=estate"},
+  {id:"43826",lot:"473-0004",title:"Contract-free corner plot overgrown with shrubs opposite residential buildings in Märkisch-Oderland district",titleDE:"Vertragsfreies mit Gehölzen bewachsenes Eckgrundstück gegenüber von Wohnbebauung im Landkreis Märkisch-Oderland",addr:"Rudolf-Breitscheid-Straße, 15306 Lindendorf OT Sachsendorf, Brandenburg",size:"2,461 m²",startPrice:2400,highBid:2400,bids:1,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43826&loadObjectType=estate"},
+  {id:"43828",lot:"473-0005",title:"Plot in the health resort Hinterzarten in the Black Forest, ~27km from Freiburg — contract-free green space",titleDE:"Grundstück im Kurort Hinterzarten im Schwarzwald ca. 27 km von Freiburg (Breisgau) entfernt, vertragsfreie Grünfläche",addr:"Martin-Gremminger-Weg (hinter den Hausnummern 6-12), 79856 Hinterzarten, Baden-Württemberg",size:"3,160 m²",startPrice:11000,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43828&loadObjectType=estate"},
+  {id:"43758",lot:"473-0006",title:"Scattered plots totalling over 2.2 ha in the Altmark region — partially leased until 30 Sept 2029",titleDE:"Splitterflächen in Streulage mit insgesamt über 2,2 ha in der Altmark, teilweise bis 30.09.2029 verpachtet",addr:"29410 Hansestadt Salzwedel OS Chüden OT Ritze, Sachsen-Anhalt",size:"22,072 m²",startPrice:14000,highBid:null,bids:0,type:"agri",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43758&loadObjectType=estate"},
+  {id:"43820",lot:"473-0007",title:"Vineyard with 'Dornfelder' grape variety in the 'Kloster Stuben' area — direct from the winemaker",titleDE:"Weinberg mit der Rebsorte 'Dornfelder' im Bereich 'Kloster Stuben', direkt vom Weinbauern",addr:"56814 Bremm (Mosel), Rheinland-Pfalz",size:"1,181 m²",startPrice:1000,highBid:1000,bids:1,type:"wine",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43820&loadObjectType=estate"},
+  {id:"43822",lot:"473-0008",title:"Vineyard with 'Phoenix' grape variety in the 'Kloster Stuben' area — direct from the winemaker",titleDE:"Weinberg mit der Rebsorte 'Phoenix' im Bereich 'Kloster Stuben', direkt vom Weinbauern",addr:"56814 Bremm (Mosel), Rheinland-Pfalz",size:"1,189 m²",startPrice:1000,highBid:1400,bids:3,type:"wine",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43822&loadObjectType=estate"},
+  {id:"43808",lot:"473-0009",title:"Contract-free forest area above the Mosel river — in the wine village of Zell",titleDE:"Vertragsfreie Waldfläche oberhalb der Mosel, in der Weinbaugemeinde Zell",addr:"Oberhalb der Jakobstraße, 56856 Zell (Mosel), Rheinland-Pfalz",size:"1,657 m²",startPrice:1300,highBid:1300,bids:1,type:"forest",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43808&loadObjectType=estate"},
+  {id:"43804",lot:"473-0010",title:"Fallow vineyard in the wine village Wolf on a Mosel river bend, near 'Mühlental' viewpoint",titleDE:"Brachliegende Weinanbaufläche im Weinort Wolf in einer Moselschleife nahe dem 'Aussichtspunkt Mühlental'",addr:"Nahe Faulbrücksweg, 56841 Traben-Trarbach ST Wolf, Rheinland-Pfalz",size:"555 m²",startPrice:300,highBid:300,bids:1,type:"wine",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43804&loadObjectType=estate"},
+  {id:"43746",lot:"473-0011",title:"2 forest plots in the 'Klinkumer Busch' woodland area — close to the Dutch border",titleDE:"2 Waldflächen im Waldgebiet 'Klinkumer Busch', unweit der niederländischen Landesgrenze",addr:"41844 Wegberg OT Arsbeck, Nordrhein-Westfalen",size:"3,162 m²",startPrice:2000,highBid:2000,bids:1,type:"forest",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43746&loadObjectType=estate"},
+  {id:"43802",lot:"473-0012",title:"½ co-ownership share of a leased agricultural plot northeast of the hamlet of Hetzeberg",titleDE:"1/2 Miteigentumsanteil an einer verpachteten Landwirtschaftsfläche nordöstlich der Kleinsiedlung Hetzeberg",addr:"Verlängerung der Straße 'Hetzeberg', 36469 Bad Salzungen OT Ettenhausen, Thüringen",size:"5,000 m²",startPrice:1800,highBid:null,bids:0,type:"agri",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43802&loadObjectType=estate"},
+  {id:"43806",lot:"473-0013",title:"Contract-free grassland with shrub growth on the periphery — Gröbzig, Saxony-Anhalt",titleDE:"Vertragsfreie Grünlandfläche mit Gehölzbewuchs im Randbereich",addr:"L147, 06388 Südliches Anhalt OT Gröbzig, Sachsen-Anhalt",size:"1,503 m²",startPrice:800,highBid:1000,bids:2,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43806&loadObjectType=estate"},
+  {id:"43792",lot:"473-0014",title:"Strip of land (path + forest) near the ruins of Schauenforst Castle — Thüringen",titleDE:"Grundstücksstreifen (Wege- und Waldfläche) nahe der Burgruine Schauenforst",addr:"07407 Uhlstädt-Kirchhasel OT Engerda, Thüringen",size:"3,460 m²",startPrice:400,highBid:null,bids:0,type:"forest",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43792&loadObjectType=estate"},
+  {id:"43796",lot:"473-0015",title:"Scattered plots (paths, green areas, forest) — partly near the Bavarian state border, Thüringen",titleDE:"Splitterflächen (Wege-, Grün- und Waldflächen) in Streulage, teilweise nahe der Bayerischen Landesgrenze",addr:"98673 Eisfeld OT Heid und 98666 Masserberg, Thüringen",size:"1,094 m²",startPrice:300,highBid:null,bids:0,type:"splitter",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43796&loadObjectType=estate"},
+  {id:"43830",lot:"473-0016",title:"Small strip of forest in the 'Dübener Heide' nature area — Saxony-Anhalt",titleDE:"Kleiner Waldstreifen in der 'Dübener Heide'",addr:"L129, 06905 Bad Schmiedeberg OS Priesitz, Sachsen-Anhalt",size:"644 m²",startPrice:150,highBid:300,bids:4,type:"forest",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43830&loadObjectType=estate"},
+  {id:"43810",lot:"473-0017",title:"Natural shrub-land plot along federal road B48 — Winnweiler, Rhineland-Palatinate",titleDE:"Naturbelassene Gehölzfläche an der B48",addr:"B48, 67722 Winnweiler, Rheinland-Pfalz",size:"2,541 m²",startPrice:100,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43810&loadObjectType=estate"},
+  {id:"43812",lot:"473-0018",title:"Grassland with shrub growth in Winnweiler — near B48",titleDE:"Grünlandfläche mit Gehölzbewuchs in Winnweiler",addr:"Nahe B48, 67722 Winnweiler, Rheinland-Pfalz",size:"337 m²",startPrice:10,highBid:10,bids:1,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43812&loadObjectType=estate"},
+  {id:"43814",lot:"473-0019",title:"Contract-free shrub plot on a hillside in Winnweiler, Northern Palatinate Highlands",titleDE:"Vertragsfreie Gehölzfläche in Hanglage in Winnweiler im Nordpfälzer Bergland",addr:"Nahe Alsenzstraße, 67722 Winnweiler, Rheinland-Pfalz",size:"666 m²",startPrice:20,highBid:null,bids:0,type:"land",isAuction:true,diiaUrl:"https://www.diia.de/?thema=auctions&page=auctionObjectDetail&loadObjectId=43814&loadObjectType=estate"},
+];

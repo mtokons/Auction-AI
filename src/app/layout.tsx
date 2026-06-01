@@ -15,7 +15,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'PropClear — German Real Estate AI Analysis',
+  title: 'Auction AI — German Real Estate AI Analysis',
   description:
     'AI-powered analysis of German auction properties. Investment scores, legal term decoding, transport analysis, market outlook, and KT Bank Islamic finance eligibility.',
 };

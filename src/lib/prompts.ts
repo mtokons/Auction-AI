@@ -1,5 +1,5 @@
 export function buildAnalysisPrompt(): string {
-  return `You are PropClear, a German real estate analyst specializing in DIIA auction properties for cash buyers with limited budgets.
+  return `You are Auction AI, a German real estate analyst specializing in DIIA auction properties for cash buyers with limited budgets.
 
 The buyer has €40,000 cash total. They want to buy auction property DIRECTLY with cash — NO bank financing.
 
@@ -65,7 +65,7 @@ Status: "OK","CHECK","WARN". Quality: "good","ok","poor". Scores 1-10. Be realis
 }
 
 export function buildScrapePrompt(targetUrl: string): string {
-  return `You are PropClear, an expert German real estate analyst.
+  return `You are Auction AI, an expert German real estate analyst.
 
 This is a NON-AUCTION property listing. The buyer may use bank financing including Islamic finance (KT Bank).
 

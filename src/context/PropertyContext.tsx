@@ -61,12 +61,12 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let customProps: Property[] = [];
     try {
-      customProps = JSON.parse(localStorage.getItem('propclear_custom_props') || '[]');
+      customProps = JSON.parse(localStorage.getItem('auction_ai_custom_props') || '[]');
     } catch { /* empty */ }
 
     let savedAnalyses: Record<string, Analysis> = {};
     try {
-      savedAnalyses = JSON.parse(localStorage.getItem('propclear_analyses') || '{}');
+      savedAnalyses = JSON.parse(localStorage.getItem('auction_ai_analyses') || '{}');
     } catch { /* empty */ }
 
     setProperties([...DEFAULT_PROPERTIES, ...customProps]);
@@ -78,7 +78,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
     (updated: Record<string, Analysis>) => {
       setAnalyses(updated);
       try {
-        localStorage.setItem('propclear_analyses', JSON.stringify(updated));
+        localStorage.setItem('auction_ai_analyses', JSON.stringify(updated));
       } catch { /* quota exceeded — ignore */ }
     },
     [],
@@ -92,7 +92,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         (p) => !DEFAULT_PROPERTIES.some((d) => d.id === p.id),
       );
       try {
-        localStorage.setItem('propclear_custom_props', JSON.stringify(custom));
+        localStorage.setItem('auction_ai_custom_props', JSON.stringify(custom));
       } catch { /* ignore */ }
     },
     [],

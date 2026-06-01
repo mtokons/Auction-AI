@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PropClear — Live DIIA Auction Intelligence</title>
+<title>Auction AI — Live DIIA Auction Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -284,18 +284,18 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 
 <header>
   <div>
-    <span class="logo-mark">PropClear</span>
+    <span class="logo-mark">Auction AI</span>
     <span class="logo-tag">DIIA Intelligence</span>
   </div>
-  <div class="live-badge"><div class="pulse"></div>Live · Auction #473 · 21 May 2026</div>
+  <div class="live-badge" id="liveBadgeHeader"><div class="pulse"></div>Live · Auction #473 · 21 May 2026</div>
 </header>
 
 <div class="banner">
   <div class="banner-inner">
     <div>
-      <div class="auction-no">Auction No. 473 · DIIA.de</div>
-      <div class="banner-title">21. Mai 2026 — Live Immobilienauktion</div>
-      <div class="banner-sub">Deutsche Internet Immobilien Auktionen GmbH · Kurfürstendamm 65, Berlin<br>Hammer falls from 11:00 Uhr CET · Legally binding upon Zuschlag</div>
+      <div class="auction-no" id="bannerAuctionNo">Auction No. 473 · DIIA.de</div>
+      <div class="banner-title" id="bannerTitle">21. Mai 2026 — Live Immobilienauktion</div>
+      <div class="banner-sub" id="bannerSub">Deutsche Internet Immobilien Auktionen GmbH · Kurfürstendamm 65, Berlin<br>Hammer falls from 11:00 Uhr CET · Legally binding upon Zuschlag</div>
       <div class="banner-stats">
         <div><span class="bstat-num">25</span><span class="bstat-label">Total Lots</span></div>
         <div><span class="bstat-num">20</span><span class="bstat-label">Shown</span></div>
@@ -325,7 +325,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 <div class="scraper-section">
   <div class="scraper-inner">
     <div class="scraper-title">✦ Scrape &amp; Rate Any German Auction Link</div>
-    <p class="scraper-sub">Paste any listing URL from <strong>zvg-portal.de</strong>, <strong>ndga.de</strong>, or <strong>diia.de</strong>. Our system will extract the data, calculate PropClear scores, and list the property in the leaderboard.</p>
+    <p class="scraper-sub">Paste any listing URL from <strong>zvg-portal.de</strong>, <strong>ndga.de</strong>, or <strong>diia.de</strong>. Our system will extract the data, calculate Auction AI scores, and list the property in the leaderboard.</p>
     <div class="scraper-row">
       <input type="text" class="scraper-input" id="scraperUrl" placeholder="https://www.ndga.de/auktionen/objekt/... or ZVG case file link">
       <button class="btn-scrape" id="btnScrape" onclick="scrapeAndAnalyze()">✦ Scrape &amp; Rate</button>
@@ -344,7 +344,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
         <div class="loading-step active" id="step1">🔍 Fetching page content &amp; source code...</div>
         <div class="loading-step" id="step2">🧹 Stripping CSS/JS and cleaning raw HTML structure...</div>
         <div class="loading-step" id="step3">🤖 Sending cleaned content to Gemini-2.5-Flash (Key Rotation)...</div>
-        <div class="loading-step" id="step4">📊 Calculating PropClear ratings and generating verdict...</div>
+        <div class="loading-step" id="step4">📊 Calculating Auction AI ratings and generating verdict...</div>
       </div>
     </div>
   </div>
@@ -353,6 +353,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 <div class="view-tabs">
   <button class="v-tab active" id="tabCatalog" onclick="switchView('catalog')">🔍 Live Catalog View</button>
   <button class="v-tab" id="tabLeaderboard" onclick="switchView('leaderboard')">🏆 Investment Top Chart</button>
+  <button class="v-tab" id="tabArchive" onclick="switchView('archive')">📜 Historical Archive</button>
 </div>
 
 <div class="filters">
@@ -376,7 +377,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
     <div>
       <div style="font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:.4rem; font-family:'JetBrains Mono',monospace;">🏆 Leaderboard</div>
       <h2 style="font-family:'Instrument Serif',serif; font-size:2.4rem; line-height:1.1; color:var(--ink);">Investment Top Chart</h2>
-      <p style="font-family:'JetBrains Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:.4rem;">All analyzed properties, ranked by their PropClear average ratings across Investment, Transport, Legal, and Market factors.</p>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:.4rem;">All analyzed properties, ranked by their Auction AI average ratings across Investment, Transport, Legal, and Market factors.</p>
     </div>
     <!-- Sorting options -->
     <div style="display:flex; align-items:center; gap:.5rem;">
@@ -431,7 +432,7 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
 
 <footer>
   <p class="footer-text">
-    PropClear · Data scraped live from <a href="https://www.diia.de" target="_blank">DIIA.de</a> Auction #473 · 21 May 2026<br>
+    Auction AI · Data scraped live from <a href="https://www.diia.de" target="_blank">DIIA.de</a> Auction #473 · 21 May 2026<br>
     ⚠️ AI analysis is for decision support only — not legal or financial advice.<br>
     Always consult a German <strong style="color:rgba(246,243,236,.5)">Notar</strong> and <strong style="color:rgba(246,243,236,.5)">Steuerberater</strong> before bidding. Purchases are legally binding upon <em>Zuschlag</em>.<br>
     Total cost = Winning bid + <strong style="color:rgba(246,243,236,.5)">7.14% Aufgeld</strong> + <strong style="color:rgba(246,243,236,.5)">3.5–6.5% Grunderwerbsteuer</strong> + <strong style="color:rgba(246,243,236,.5)">€1,500–3,000 Notar fees</strong>
@@ -476,7 +477,7 @@ const TYPE_CLS={land:"t-land",forest:"t-forest",wine:"t-wine",agri:"t-agri",spli
 
 let customProps = [];
 try {
-  customProps = JSON.parse(localStorage.getItem('propclear_custom_props') || '[]');
+  customProps = JSON.parse(localStorage.getItem('auction_ai_custom_props') || '[]');
 } catch (e) {
   customProps = [];
 }
@@ -484,7 +485,7 @@ PROPS = [...PROPS, ...customProps];
 
 let analyses = {};
 try {
-  analyses = JSON.parse(localStorage.getItem('propclear_analyses') || '{}');
+  analyses = JSON.parse(localStorage.getItem('auction_ai_analyses') || '{}');
 } catch (e) {
   analyses = {};
 }
@@ -605,7 +606,7 @@ function closeInline(pid){
 
 // ── AI CALL (via Cloudflare Worker proxy) ──
 async function callAI(p){
-  const sys=`You are PropClear, a German real estate auction expert. Analyze this DIIA auction property for an international investor. Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
+  const sys=`You are Auction AI, a German real estate auction expert. Analyze this DIIA auction property for an international investor. Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
 {"title_en":"English title","location":"City, State","property_type":"Land/Forest/Vineyard/Agricultural/etc","decision":"BUY","decision_reason":"one sentence max 15 words","investment_score":7.2,"transport_score":5.0,"legal_score":8.0,"market_score":6.5,"summary":"2-3 sentences plain English","pros":["pro1","pro2","pro3","pro4"],"cons":["con1","con2","con3","con4"],"legal_terms":[{"de":"German term","en":"English","explanation":"plain English explanation for investor","status":"OK"}],"transport_analysis":{"overall":"good","summary":"transport summary","connections":[{"type":"Train","detail":"details","quality":"good"}]},"market_outlook":{"short_term":"1-2yr outlook","mid_term":"3-5yr outlook","long_term":"10yr+ outlook"},"major_problems":["problem1"],"investment_opportunities":["opp1"],"key_questions_to_ask":["q1","q2"],"estimated_true_value":"€X,000–€Y,000 brief reasoning","hidden_costs":["cost1","cost2","cost3"]}
 Status must be "OK", "CHECK", or "WARN". Quality must be "good", "ok", or "poor". Scores 1-10. Be realistic.`;
 
@@ -889,13 +890,13 @@ async function scrapeAndAnalyze() {
     // Add to customProps if not already present
     if (!PROPS.some(p => p.id === propertyObj.id)) {
       customProps.push(propertyObj);
-      localStorage.setItem('propclear_custom_props', JSON.stringify(customProps));
+      localStorage.setItem('auction_ai_custom_props', JSON.stringify(customProps));
       PROPS.push(propertyObj);
     }
 
     // Save analysis
     analyses[propertyObj.id] = analysisObj;
-    localStorage.setItem('propclear_analyses', JSON.stringify(analyses));
+    localStorage.setItem('auction_ai_analyses', JSON.stringify(analyses));
 
     setStep(step4, 'done');
     await new Promise(r => setTimeout(r, 500));
@@ -941,29 +942,34 @@ function switchView(view) {
   
   const tabCatalog = document.getElementById('tabCatalog');
   const tabLeaderboard = document.getElementById('tabLeaderboard');
+  const tabArchive = document.getElementById('tabArchive');
   
   const catalogFilters = document.querySelector('.filters');
   const catalogGrid = document.getElementById('grid');
   const leaderboardView = document.getElementById('leaderboardView');
   
+  tabCatalog.classList.remove('active');
+  tabLeaderboard.classList.remove('active');
+  if (tabArchive) tabArchive.classList.remove('active');
+  
   if (view === 'catalog') {
     tabCatalog.classList.add('active');
-    tabLeaderboard.classList.remove('active');
-    
     catalogFilters.style.display = 'flex';
     catalogGrid.style.display = 'grid';
     leaderboardView.style.display = 'none';
-    
     render();
-  } else {
-    tabCatalog.classList.remove('active');
+  } else if (view === 'leaderboard') {
     tabLeaderboard.classList.add('active');
-    
     catalogFilters.style.display = 'none';
     catalogGrid.style.display = 'none';
     leaderboardView.style.display = 'block';
-    
     renderLeaderboard();
+  } else if (view === 'archive') {
+    if (tabArchive) tabArchive.classList.add('active');
+    catalogFilters.style.display = 'flex';
+    catalogGrid.style.display = 'grid';
+    leaderboardView.style.display = 'none';
+    renderArchive();
   }
 }
 
@@ -991,7 +997,7 @@ function renderLeaderboard() {
   // Map and calculate averages
   const items = analyzedProps.map(p => {
     const a = analyses[p.id];
-    const avg = ((a.investment_score || 0) + (a.transport_score || 0) + (a.legal_score || 0) + (a.market_score || 0)) / 4;
+    const avg = ((a.investment_score || 0) + (a.transport_score || 0) + (a.legal_score || 0) + (a.market_score || 0) + (a.islamic_finance_score || 0)) / 5;
     return { prop: p, analysis: a, avg: parseFloat(avg.toFixed(2)) };
   });
   
@@ -1025,7 +1031,8 @@ function renderLeaderboard() {
       { label: 'INV', score: a.investment_score || 0 },
       { label: 'TRA', score: a.transport_score || 0 },
       { label: 'LEG', score: a.legal_score || 0 },
-      { label: 'MKT', score: a.market_score || 0 }
+      { label: 'MKT', score: a.market_score || 0 },
+      { label: 'ISL', score: a.islamic_finance_score || 0 }
     ];
     
     const scoreDots = scores.map(s => {
@@ -1084,7 +1091,106 @@ function renderLeaderboard() {
   });
 }
 
+// ── ARCHIVE RENDERING ──
+let ARCHIVED_PROPS = [];
+async function loadArchive() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/archive`);
+    if (res.ok) {
+      ARCHIVED_PROPS = await res.json();
+    }
+  } catch (e) {
+    console.error('Failed to load archived properties:', e);
+  }
+}
+
+async function renderArchive() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; font-family: \'JetBrains Mono\', monospace; font-size: 0.8rem; color: var(--muted)">Loading historical archive...</div>';
+  
+  await loadArchive();
+  
+  grid.innerHTML = '';
+  let count = 0;
+  
+  if (ARCHIVED_PROPS.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem; font-family: \'Instrument Serif\', serif; font-size: 1.5rem; color: var(--muted)">No Archived Listings Yet</div>';
+    return;
+  }
+  
+  ARCHIVED_PROPS.forEach(p => {
+    const matchType = activeFilter === 'all'
+      || (activeFilter === 'analyzed' && analyses[p.id])
+      || (p.type === activeFilter);
+    const q = searchVal.toLowerCase();
+    const matchSearch = !q || p.title.toLowerCase().includes(q) || p.addr.toLowerCase().includes(q) || p.lot.toLowerCase().includes(q);
+    if (!matchType || !matchSearch) return;
+    count++;
+    
+    const a = analyses[p.id];
+    const card = document.createElement('div');
+    card.className = 'card' + (a ? ' analyzed' : '');
+    card.id = 'card-' + p.id;
+    card.style.opacity = '0.75';
+    
+    const bidHTML = `<div class="bid-row" style="background: rgba(13,15,11,0.04);"><span style="color: var(--muted)">Auction Ended / Past</span><span style="color: var(--muted); font-size: 0.58rem;">Started €${p.startPrice.toLocaleString()}</span></div>`;
+    
+    const btnLabel = a ? '✓ Analyzed — View Report' : '🤖 AI Analyze Historical Listing';
+    const btnCls = a ? 'btn-analyze done' : 'btn-analyze';
+    
+    let siteName = 'DIIA.de';
+    if (p.diiaUrl.includes('ndga.de')) siteName = 'NDGA.de';
+    if (p.diiaUrl.includes('zvg-portal.de')) siteName = 'ZVG Portal';
+    
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="lot" style="background: #546e7a;">${p.lot} (ARCHIVED)</span>
+        <span class="type-chip ${TYPE_CLS[p.type] || 't-land'}">${TYPE_LABELS[p.type] || p.type}</span>
+      </div>
+      <div class="card-title" style="text-decoration: line-through; color: var(--muted);">${p.title}</div>
+      <div class="card-addr">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${p.addr}
+      </div>
+      <div class="card-meta">
+        <div class="meta-item"><span class="m-label">Size</span><span class="m-val">${p.size}</span></div>
+        <div class="meta-item"><span class="m-label">Start Price</span><span class="m-val" style="color: var(--muted)">€${p.startPrice.toLocaleString()}</span></div>
+      </div>
+      ${bidHTML}
+      <div style="display:flex;gap:.5rem">
+        <a href="${p.diiaUrl}" target="_blank" style="display:flex;align-items:center;gap:.3rem;background:transparent;border:1px solid var(--border);padding:.5rem .6rem;border-radius:2px;font-size:.58rem;color:var(--muted);text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .15s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          ↗ ${siteName}
+        </a>
+        <button class="${btnCls}" id="btn-${p.id}" onclick="analyzeOne('${p.id}')" style="flex:1">${btnLabel}</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  
+  document.getElementById('fcount').textContent = `${count} archived properties`;
+}
+
+// ── DYNAMIC LISTINGS FETCH ──
+async function loadDynamicListings() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/listings`);
+    if (res.ok) {
+      const activeListings = await res.json();
+      if (activeListings && activeListings.length > 0) {
+        // Overwrite standard list with live sync list
+        PROPS = activeListings;
+        // Reinject user custom ones
+        PROPS = [...PROPS, ...customProps.filter(cp => !PROPS.some(p => p.id === cp.id))];
+        render();
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load live properties:', e);
+  }
+}
+
 // ── INIT ──
+loadDynamicListings();
 render();
 </script>
 </body>
