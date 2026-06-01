@@ -392,6 +392,9 @@ footer{background:var(--ink);padding:1.8rem 2rem;text-align:center;border-top:1p
     </div>
   </div>
 
+  <!-- Visual Top Chart -->
+  <div id="leaderboardVisualChart" style="display:none; margin-bottom:2.5rem; animation:fadeUp .3s ease;"></div>
+
   <div class="leaderboard-card">
     <table class="leaderboard-table" id="leaderboardTable">
       <thead>
@@ -1012,8 +1015,63 @@ function renderLeaderboard() {
     else if (sortBy === 'market') { valX = x.analysis.market_score || 0; valY = y.analysis.market_score || 0; }
     return valY - valX; // Descending
   });
+
+  // Render visual chart (top 5)
+  const chartContainer = document.getElementById('leaderboardVisualChart');
+  if (chartContainer) {
+    const top5 = items.slice(0, 5);
+    chartContainer.style.display = 'block';
+    
+    let chartHTML = `
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.2rem; margin-bottom:2rem;">
+    `;
+    
+    top5.forEach((item, index) => {
+      const p = item.prop;
+      const a = item.analysis;
+      const rank = index + 1;
+      let badge = '🏆';
+      if (rank === 1) badge = '🥇';
+      else if (rank === 2) badge = '🥈';
+      else if (rank === 3) badge = '🥉';
+      
+      const avgColor = item.avg >= 7 ? '#2a8a7a' : item.avg >= 4.5 ? '#b8922a' : '#b03030';
+      const complianceBadge = a.islamic_finance_eligible 
+        ? `<span style="background:rgba(42,138,122,0.1); color:#2a8a7a; border:1px solid rgba(42,138,122,0.2); padding:2px 6px; font-size:8px; border-radius:2px; font-family:'JetBrains Mono',monospace;">SHARIA COMPLIANT</span>`
+        : `<span style="background:rgba(176,48,48,0.1); color:#b03030; border:1px solid rgba(176,48,48,0.2); padding:2px 6px; font-size:8px; border-radius:2px; font-family:'JetBrains Mono',monospace;">NOT ELIGIBLE</span>`;
+        
+      chartHTML += `
+        <div style="background:var(--paper); border:1px solid var(--border-strong); padding:1.2rem; border-radius:3px; position:relative; box-shadow:0 4px 20px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; height:180px; transition:transform 0.2s ease, box-shadow 0.2s ease; cursor:pointer;" 
+             onclick="openModal('${p.id}')"
+             onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 30px rgba(0,0,0,0.04)'; this.style.borderColor='var(--gold)';" 
+             onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.02)'; this.style.borderColor='var(--border-strong)';">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem;">
+              <span style="font-size:1.2rem;">${badge}</span>
+              ${complianceBadge}
+            </div>
+            <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:.75rem; color:var(--ink); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; height:1.8rem; margin-bottom:.4rem;">${a.title_en || p.title}</h4>
+            <div style="font-size:.58rem; color:var(--muted); font-family:'JetBrains Mono',monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:.8rem;">📍 ${p.addr}</div>
+          </div>
+          
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.2rem;">
+              <span style="font-size:9px; font-family:'JetBrains Mono',monospace; color:var(--muted); text-transform:uppercase;">Rating (${sortBy.toUpperCase()})</span>
+              <span style="font-family:'Instrument Serif',serif; font-size:1.8rem; font-weight:700; color:${avgColor};">${item.avg}</span>
+            </div>
+            <div style="background:var(--border); width:100%; height:6px; border-radius:3px; overflow:hidden; position:relative;">
+              <div style="height:100%; width:${item.avg * 10}%; background:${avgColor}; border-radius:3px; transition:width 1s ease;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    chartHTML += `</div>`;
+    chartContainer.innerHTML = chartHTML;
+  }
   
-  // Render
+  // Render Table
   items.forEach((item, index) => {
     const p = item.prop;
     const a = item.analysis;
@@ -1215,12 +1273,28 @@ async function loadDynamicListings() {
         // Reinject user custom ones
         PROPS = [...PROPS, ...customProps.filter(cp => !PROPS.some(p => p.id === cp.id))];
         updateBannerDynamic(PROPS);
-        render();
       }
     }
   } catch (e) {
     console.error('Failed to load live properties:', e);
   }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/analyses`);
+    if (res.ok) {
+      const remoteAnalyses = await res.json();
+      if (remoteAnalyses && Object.keys(remoteAnalyses).length > 0) {
+        // Merge remote analyses with local ones
+        analyses = { ...remoteAnalyses, ...analyses };
+        // Save back to local storage
+        localStorage.setItem('auction_ai_analyses', JSON.stringify(analyses));
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load saved analyses:', e);
+  }
+
+  render();
 }
 
 // ── INIT ──

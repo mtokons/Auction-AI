@@ -529,22 +529,60 @@ async function runSync(env) {
       }
     });
     if (res.ok) {
-      const html = await res.text();
+      const html1 = await res.text();
+      const cookies = res.headers.getSetCookie 
+        ? res.headers.getSetCookie().join('; ')
+        : (res.headers.get('set-cookie') || '');
+      
+      // Extract CSRF token
+      const csrfMatch = html1.match(/name="csrfToken"\s+value="([^"]+)"/);
+      const csrfToken = csrfMatch ? csrfMatch[1] : '';
+      
       const ids = new Set();
       const regex = /loadObjectId=(\d+)/g;
       let match;
-      while ((match = regex.exec(html)) !== null) {
+      while ((match = regex.exec(html1)) !== null) {
         ids.add(match[1]);
       }
+      
+      // Fetch next pages using offset pagination (offset 20 and 40)
+      const offsets = [20, 40];
+      for (const offset of offsets) {
+        try {
+          const postRes = await fetch('https://www.diia.de/?thema=auctions', {
+            method: 'POST',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8',
+              'Cookie': cookies,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `csrfToken=${encodeURIComponent(csrfToken)}&sectionsObjectListRunning_estate%3A%3ApagerOffset=${offset}`
+          });
+          if (postRes.ok) {
+            const htmlOffset = await postRes.text();
+            let offsetMatch;
+            regex.lastIndex = 0; // Reset regex
+            while ((offsetMatch = regex.exec(htmlOffset)) !== null) {
+              ids.add(offsetMatch[1]);
+            }
+          }
+        } catch (postErr) {
+          console.error(`Failed to scrape offset ${offset}:`, postErr.message);
+        }
+      }
+      
       diiaActiveIds = Array.from(ids);
       scrapeSuccess = diiaActiveIds.length > 0;
-      console.log(`Scraped DIIA Active IDs: ${diiaActiveIds.length}`);
+      console.log(`Scraped DIIA Active IDs (Across All Pages): ${diiaActiveIds.length}`);
     } else {
       console.error(`DIIA index scrape failed with status ${res.status}`);
     }
   } catch (e) {
     console.error('Failed to scrape DIIA active list:', e.message);
   }
+
 
   // Load existing lists from KV
   let active = await KV.get('active_listings', 'json') || [];
@@ -654,7 +692,7 @@ Analyze the listing and return ONLY valid JSON (no markdown blocks, no formattin
       for (const key of API_KEYS) {
         try {
           const resp = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
