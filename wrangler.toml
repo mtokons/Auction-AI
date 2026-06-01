@@ -1,3 +1,10 @@
 name = "auction-ai-proxy"
 main = "worker.js"
 compatibility_date = "2024-05-23"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "8bce980b87284987a038f8d522a67974"
+
+[triggers]
+crons = [ "0 2 * * *" ]

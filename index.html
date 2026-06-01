@@ -808,8 +808,9 @@ function showToast(msg){
 }
 
 // ── COUNTDOWN ──
+let countdownTargetDate = new Date('2026-05-21T11:00:00+02:00');
 function tick(){
-  const target=new Date('2026-05-21T11:00:00+02:00');
+  const target = countdownTargetDate;
   const diff=target-Date.now();
   const el=document.getElementById('countdown');
   if(!el)return;
@@ -1170,6 +1171,38 @@ async function renderArchive() {
   document.getElementById('fcount').textContent = `${count} archived properties`;
 }
 
+// ── DYNAMIC BANNER UPDATER ──
+function updateBannerDynamic(properties) {
+  if (!properties || properties.length === 0) return;
+  
+  // Find a DIIA listing to extract the current auction number
+  const diiaProp = properties.find(p => p.diiaUrl && p.diiaUrl.includes('diia.de') && p.lot && p.lot.includes('-'));
+  if (diiaProp) {
+    const parts = diiaProp.lot.split('-');
+    const auctionNo = parts[0];
+    if (auctionNo && !isNaN(auctionNo)) {
+      document.getElementById('bannerAuctionNo').textContent = `Auction No. ${auctionNo} · DIIA.de`;
+      document.getElementById('liveBadgeHeader').innerHTML = `<div class="pulse"></div>Live · Auction #${auctionNo} · Active`;
+      
+      // Since current local time is after May 2026, let's schedule countdown for the next upcoming Wednesday relative to today!
+      const nextAuction = new Date();
+      nextAuction.setDate(nextAuction.getDate() + ((3 + 7 - nextAuction.getDay()) % 7 || 7)); // Next Wednesday
+      nextAuction.setHours(11, 0, 0, 0);
+      countdownTargetDate = nextAuction;
+      
+      const options = { weekday: 'short', day: 'numeric', month: 'short' };
+      const formattedDate = nextAuction.toLocaleDateString('de-DE', options);
+      
+      document.getElementById('bannerTitle').textContent = `${formattedDate} — Live Immobilienauktion`;
+      
+      const countdownLabel = document.querySelector('.countdown-box div[style*="font-size"]');
+      if (countdownLabel) {
+        countdownLabel.textContent = `${formattedDate} · 11:00 CET`;
+      }
+    }
+  }
+}
+
 // ── DYNAMIC LISTINGS FETCH ──
 async function loadDynamicListings() {
   try {
@@ -1181,6 +1214,7 @@ async function loadDynamicListings() {
         PROPS = activeListings;
         // Reinject user custom ones
         PROPS = [...PROPS, ...customProps.filter(cp => !PROPS.some(p => p.id === cp.id))];
+        updateBannerDynamic(PROPS);
         render();
       }
     }
