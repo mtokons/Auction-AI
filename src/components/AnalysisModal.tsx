@@ -54,7 +54,7 @@ export default function AnalysisModal() {
             </span>
             <span className="font-mono text-sm text-ink/45 flex-1">{a.decision_reason}</span>
             <a
-              href={p.diiaUrl}
+              href={p.diiaUrl?.startsWith('http') ? p.diiaUrl : `https://${p.diiaUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-gold no-underline border border-gold/40 px-3 py-1 rounded-sm whitespace-nowrap hover:bg-gold/5"

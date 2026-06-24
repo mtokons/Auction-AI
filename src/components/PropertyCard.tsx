@@ -194,7 +194,7 @@ export default function PropertyCard({ property }: { property: Property }) {
       {/* Actions */}
       <div className="flex gap-2">
         <a
-          href={p.diiaUrl}
+          href={p.diiaUrl?.startsWith('http') ? p.diiaUrl : `https://${p.diiaUrl}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 bg-transparent border border-ink/10 px-2.5 py-2 rounded-sm text-[.58rem] text-ink/45 no-underline font-mono hover:border-gold hover:text-gold transition-all whitespace-nowrap"

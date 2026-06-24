@@ -23,8 +23,11 @@ export default function ScraperForm() {
   const [step, setStep] = useState(0);
 
   const handleSubmit = async () => {
-    const trimmed = url.trim();
+    let trimmed = url.trim();
     if (!trimmed) return;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      trimmed = `https://${trimmed}`;
+    }
     setLoading(true);
     setStep(0);
 
