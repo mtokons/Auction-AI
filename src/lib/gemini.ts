@@ -30,62 +30,22 @@ export async function callGemini(
   systemPrompt: string,
   userMessage: string,
 ): Promise<GeminiResult> {
-  const keys = getApiKeys();
-  if (keys.length === 0) {
-    return { error: true, status: 500, message: 'No Gemini API keys configured' };
-  }
+  try {
+    const response = await fetch('https://auction-ai-proxy.mhasnainn.workers.dev/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: systemPrompt, userMessage }),
+    });
 
-  let lastError = '';
-
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok && data.error) {
-        const msg = data.error.message || '';
-        if (msg.includes('Quota') || msg.includes('rate limit') || response.status === 429) {
-          lastError = `Key ${i + 1}/${keys.length} rate limited`;
-          continue;
-        }
-        return { error: true, status: response.status, message: msg };
-      }
-
-      if (data.error) {
-        const msg = data.error.message || JSON.stringify(data.error);
-        if (msg.includes('Quota') || msg.includes('rate limit')) {
-          lastError = `Key ${i + 1}/${keys.length} rate limited`;
-          continue;
-        }
-        return { error: true, status: 400, message: msg };
-      }
-
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      return { error: false, text, keyUsed: i + 1 };
-    } catch (e) {
-      lastError = `Key ${i + 1} error: ${(e as Error).message}`;
-      continue;
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      return { error: true, status: response.status, message: data.error || 'Proxy error' };
     }
-  }
 
-  return {
-    error: true,
-    status: 429,
-    message: `All ${keys.length} keys exhausted. ${lastError}. Please wait 1 minute.`,
-  };
+    return { error: false, text: data.text, keyUsed: data.keyUsed };
+  } catch (e) {
+    return { error: true, status: 500, message: (e as Error).message };
+  }
 }
 
 export function extractJSON(raw: string): string | null {

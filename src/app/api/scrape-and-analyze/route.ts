@@ -89,6 +89,10 @@ export async function POST(request: NextRequest) {
 
     const parsed = JSON.parse(jsonStr);
 
+    if (parsed.property && !parsed.property.diiaUrl) {
+      parsed.property.diiaUrl = targetUrl;
+    }
+
     // Cache the full result
     setCache(cacheKey, JSON.stringify(parsed));
     if (parsed.property?.id) {
