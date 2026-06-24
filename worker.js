@@ -29,17 +29,13 @@ export default {
       if (!html) return '';
       return html
         .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
-        .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
-        .replace(/<svg[^>]*>([\s\S]*?)<\/svg>/gi, '')
-        .replace(/<iframe[^>]*>([\s\S]*?)<\/iframe>/gi, '')
-        .replace(/<nav[^>]*>([\s\S]*?)<\/nav>/gi, '')
-        .replace(/<footer[^>]*>([\s\S]*?)<\/footer>/gi, '')
-        .replace(/<\/?[^>]+(>|$)/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+        .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '');
+    }
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: CORS_HEADERS });
     }
 
-    // ── CACHE HELPERS ──
+    // ── HELPERS ──
     async function saveToStore(key, data) {
       if (KV) await KV.put(key, JSON.stringify(data));
       const cache = caches.default;
@@ -67,8 +63,6 @@ export default {
       if (KV) {
         const list = await KV.list();
         for (const key of list.keys) {
-          // Skip array lists keys
-          if (key.name === 'active_listings' || key.name === 'archived_listings') continue;
           const val = await KV.get(key.name, 'json');
           if (val) results[key.name] = val;
         }
@@ -76,14 +70,32 @@ export default {
       return results;
     }
 
-    // ── GEMINI CALL WITH KEY ROTATION ──
+    async function fetchAndCleanHTML(targetUrl) {
+      try {
+        const res = await fetch(targetUrl, { headers: { 'User-Agent': 'PropClearBot/1.0' } });
+        if (!res.ok) throw new Error('Failed to fetch URL');
+        let html = await res.text();
+        // Remove scripts, styles, svg, paths to reduce token size and noise
+        html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        html = html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+        html = html.replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, '');
+        // Strip HTML tags
+        let text = html.replace(/<[^>]+>/g, ' ');
+        // Clean up whitespace
+        text = text.replace(/\s+/g, ' ').trim();
+        return text;
+      } catch (e) {
+        throw new Error('Scraping failed: ' + e.message);
+      }
+    }
+
     async function callGemini(geminiBody) {
       let lastError = '';
       for (let i = 0; i < API_KEYS.length; i++) {
         const key = API_KEYS[i];
         try {
           const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -92,135 +104,78 @@ export default {
           );
           const data = await response.json();
 
-          // If quota exceeded, try next key
           if (!response.ok && data.error) {
             const msg = data.error.message || '';
-            if (msg.includes('Quota') || msg.includes('rate limit') || response.status === 429) {
+            if (msg.includes('Quota') || msg.includes('rate') || response.status === 429) {
               lastError = `Key ${i + 1}/${API_KEYS.length} rate limited`;
-              continue; // Try next key
+              continue;
             }
             return { error: true, status: response.status, message: msg };
           }
 
-          if (data.error) {
-            const msg = data.error.message || JSON.stringify(data.error);
-            if (msg.includes('Quota') || msg.includes('rate limit')) {
-              lastError = `Key ${i + 1}/${API_KEYS.length} rate limited`;
-              continue;
-            }
-            return { error: true, status: 400, message: msg };
-          }
-
-          // Success!
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
           return { error: false, text, keyUsed: i + 1 };
-
         } catch (e) {
           lastError = `Key ${i + 1} error: ${e.message}`;
           continue;
         }
       }
-      return { error: true, status: 429, message: `All ${API_KEYS.length} keys exhausted. ${lastError}. Please wait 1 minute.` };
+      return { error: true, status: 429, message: `All keys exhausted. ${lastError}` };
     }
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: CORS_HEADERS });
-    }
+    async function analyzeProperty(targetUrl) {
+      // 1. Scrape content
+      const content = await fetchAndCleanHTML(targetUrl);
+      
+      // 2. Call AI
+      const sys = `You are PropClear, a German real estate auction expert. Analyze the following scraped auction property webpage content for an international investor.
+Return ONLY valid JSON, no markdown, no code fences, no extra text. Exact structure required:
+{"title_en":"English title","location":"City, State","property_type":"Land/Forest/Vineyard/Agricultural/Apartment/Commercial/etc","decision":"BUY","decision_reason":"one sentence max 15 words","investment_score":7.2,"transport_score":5.0,"legal_score":8.0,"market_score":6.5,"summary":"2-3 sentences plain English","pros":["pro1","pro2","pro3"],"cons":["con1","con2","con3"],"legal_terms":[{"de":"German term","en":"English","explanation":"plain English explanation for investor","status":"OK"}],"transport_analysis":{"overall":"good","summary":"transport summary","connections":[{"type":"Train","detail":"details","quality":"good"}]},"market_outlook":{"short_term":"1-2yr outlook","mid_term":"3-5yr outlook","long_term":"10yr+ outlook"},"estimated_true_value":"€X,000–€Y,000 brief reasoning","hidden_costs":["cost1","cost2"]}
+Status must be "OK", "CHECK", or "WARN". Quality must be "good", "ok", or "poor". Scores 1-10.`;
 
-    // ── LISTINGS ENDPOINT ──
-    if (request.method === 'GET' && url.pathname === '/listings') {
-      let active = [];
-      if (KV) {
-        active = await KV.get('active_listings', 'json') || [];
+      const geminiBody = {
+        system_instruction: { parts: [{ text: sys }] },
+        contents: [{ role: 'user', parts: [{ text: "Scraped Property Source URL: " + targetUrl + "\n\nContent:\n" + content.substring(0, 50000) }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 4096 }
+      };
+
+      const result = await callGemini(geminiBody);
+      if (result.error) throw new Error(result.message);
+
+      let parsed = null;
+      try {
+        const raw = result.text.replace(/```json|```/g, '').trim();
+        const si = raw.indexOf('{'), ei = raw.lastIndexOf('}');
+        if (si !== -1 && ei !== -1) {
+          parsed = JSON.parse(raw.slice(si, ei + 1));
+          parsed.sourceUrl = targetUrl; // attach URL
+          parsed.id = btoa(targetUrl).substring(0, 16); // rudimentary ID
+        }
+      } catch (e) {
+        throw new Error('Failed to parse AI JSON response');
       }
-      if (active.length === 0) {
-        // Fallback to static properties to ensure page loads with sample listings
-        active = DEFAULT_PROPERTIES_SEED;
+
+      if (parsed && parsed.id) {
+        await saveToStore(parsed.id, parsed);
       }
-      return new Response(JSON.stringify(active), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-      });
+      return parsed;
     }
 
-    // ── ARCHIVE ENDPOINT ──
-    if (request.method === 'GET' && url.pathname === '/archive') {
-      let archived = [];
-      if (KV) {
-        archived = await KV.get('archived_listings', 'json') || [];
-      }
-      return new Response(JSON.stringify(archived), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-      });
-    }
+    // ── ROUTES ──
 
-    // ── TRIGGER MANUAL SYNC ──
-    if (request.method === 'GET' && url.pathname === '/sync') {
-      if (!KV) {
-        return new Response(JSON.stringify({ error: 'KV store is not bound' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-        });
-      }
-      ctx.waitUntil(runSync(env));
-      return new Response(JSON.stringify({ message: 'Periodical sync triggered in background' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-      });
-    }
-
-    // ── TEST ENDPOINT ──
-    if (request.method === 'GET' && url.pathname === '/') {
-      const keyStatuses = [];
-      for (let i = 0; i < API_KEYS.length; i++) {
-        const key = API_KEYS[i];
-        const preview = key.slice(0, 8) + '...' + key.slice(-4);
-        let status = 'not tested';
-        try {
-          const testResp = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Say OK' }] }] })
-            }
-          );
-          const testData = await testResp.json();
-          status = testResp.ok
-            ? '✅ WORKING'
-            : '❌ ' + (testData?.error?.message || 'FAILED').slice(0, 80);
-        } catch (e) { status = '❌ ' + e.message; }
-        keyStatuses.push({ key: `Key ${i + 1}`, preview, status });
-      }
-      return new Response(
-        JSON.stringify({
-          model: 'gemini-1.5-flash',
-          totalKeys: API_KEYS.length,
-          keys: keyStatuses,
-          kvBound: !!KV,
-          cacheAPI: true
-        }, null, 2),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // ── GET ALL SAVED ANALYSES ──
-    if (request.method === 'GET' && url.pathname === '/analyses') {
+    if (request.method === 'GET' && url.pathname === '/api/properties') {
       try {
         const results = await getAllFromStore();
-        return new Response(JSON.stringify(results), {
+        // Convert map to array and sort by investment score descending
+        const arr = Object.values(results).sort((a, b) => (b.investment_score || 0) - (a.investment_score || 0));
+        return new Response(JSON.stringify(arr), {
           status: 200,
           headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
         });
       } catch (e) {
-        return new Response(JSON.stringify({ error: e.message }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-        });
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: CORS_HEADERS });
       }
     }
-
     // ── SCRAPE AND ANALYZE (POST) ──
     if (request.method === 'POST' && url.pathname === '/scrape-and-analyze') {
       try {

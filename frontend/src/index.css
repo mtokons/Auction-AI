@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink: #0d0f0b;
+  --paper: #f6f3ec;
+  --cream: #ece8de;
+  --gold: #b8922a;
+  --gold-pale: #f5e8c0;
+  --gold-light: #e0c46a;
+  --teal: #1a5c52;
+  --teal-light: #2a8a7a;
+  --red: #b03030;
+  --red-pale: #faeaea;
+  --green-pale: #e5f3e6;
+  --amber-pale: #fef4e0;
+  --border: rgba(13,15,11,0.1);
+  --border-strong: rgba(13,15,11,0.18);
+  --muted: rgba(13,15,11,0.45);
+  
+  --dark-bg: #090a08;
+  --dark-surface: #121410;
+  --dark-surface-2: #1a1d17;
+  --dark-border: rgba(255,255,255,0.08);
+  --dark-text: #f6f3ec;
+  --dark-muted: rgba(246,243,236,0.5);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(18, 20, 16, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dark-border);
+}
+
+.glass-gold {
+  background: rgba(184, 146, 42, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(184, 146, 42, 0.2);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.2); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.spin-slow {
+  animation: spin 2s linear infinite;
+}
+
+/* Utility classes */
+.text-gold { color: var(--gold); }
+.text-gold-light { color: var(--gold-light); }
+.bg-gold { background: var(--gold); }
+.bg-ink { background: var(--ink); }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pill-buy { background: rgba(76,175,80,.15); border: 1px solid rgba(76,175,80,.35); color: #81c784; }
+.pill-caution { background: rgba(255,193,7,.12); border: 1px solid rgba(255,193,7,.3); color: #ffd54f; }
+.pill-avoid { background: rgba(176,48,48,.15); border: 1px solid rgba(176,48,48,.35); color: #ef9a9a; }
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-glass {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--dark-border);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: var(--dark-text);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input-glass:focus {
+  border-color: var(--gold);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 2px rgba(184, 146, 42, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-surface); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
