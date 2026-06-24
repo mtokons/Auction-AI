@@ -1,0 +1,155 @@
+{
+  "property": {
+    "id": "3379022918-208-9502",
+    "lot": "VL-DUS-2024-001",
+    "title": "Representative Villa in Prime Location on a Park-like Property",
+    "titleDE": "Auf parkähnlichem Grundstück: Repräsentative Villa in Bestlage",
+    "addr": "Heinrich-Heine-Allee 12, 40213 Düsseldorf, Nordrhein-Westfalen",
+    "size": 350,
+    "startPrice": 2850000,
+    "type": "residential",
+    "diiaUrl": "https://www.kleinanzeigen.de/s-anzeige/auf-parkaehnlichem-grundstueck-repraesentative-villa-in-bestlage-/3379022918-208-9502"
+  },
+  "analysis": {
+    "title_en": "Representative Villa in Prime Location on a Park-like Property",
+    "location": "Düsseldorf, Nordrhein-Westfalen (Prime central location, 40213)",
+    "property_type": "Residential Villa",
+    "decision": "BUY",
+    "decision_reason": "Exceptional prime location and property quality promise strong long-term value appreciation.",
+    "investment_score": 9.0,
+    "transport_score": 8.5,
+    "legal_score": 9.0,
+    "market_score": 9.0,
+    "cash_buy_score": 1.0,
+    "affordable_at_40k": false,
+    "cash_buy_analysis": {
+      "affordable": false,
+      "total_cost": "Over €3,000,000 total",
+      "breakdown": {
+        "auction_price": "N/A (not auction)",
+        "aufgeld": "N/A (no Aufgeld for private sale)",
+        "grunderwerbsteuer": "€198,900 (6.5% for NRW)",
+        "notar_grundbuch": "€42,750 (1.5%)",
+        "renovation_estimate": "€50,000 (minimal, for high-end property)",
+        "total": "€3,141,650"
+      },
+      "remaining_budget": "Over budget by €3,101,650",
+      "recommendation": "Requires substantial bank financing or significant personal capital.",
+      "risks": [
+        "Exceeds €40k cash budget by a vast margin",
+        "High acquisition costs beyond the property price"
+      ]
+    },
+    "islamic_finance_score": 6.5,
+    "islamic_finance_eligible": true,
+    "kt_bank_analysis": {
+      "eligible": true,
+      "reason": "Residential property in a major German city (Düsseldorf) is generally eligible. However, the property's high value (€2.85M) significantly exceeds KT Bank's typical financing maximum of €1M. While eligible in principle, securing financing for the full amount or a significant portion would be challenging and require exceptional circumstances or a much higher down payment than usual. It might be considered for a partial financing if the buyer has substantial equity.",
+      "estimated_downpayment": "€570,000 - €855,000 (20-30% of €2.85M) - potentially much higher given the price point",
+      "financing_structure": "Musharaka or Murabaha",
+      "term": "15-20 years",
+      "requirements": [
+        "Clean title (Grundbuchauszug)",
+        "Property valuation (Gutachten)",
+        "Proof of stable, sufficient income",
+        "High personal equity/down payment",
+        "Creditworthiness check (Schufa)"
+      ],
+      "alternatives": [
+        "Cordoba Capital (for larger sums, though less common in Germany)",
+        "Exploring conventional German banks for partial financing alongside Islamic finance (hybrid approach)"
+      ]
+    },
+    "summary": "This representative villa in a prime Düsseldorf location offers an exceptional investment opportunity for high-net-worth individuals. Its 'Bestlage' and park-like grounds suggest exclusivity and strong potential for long-term value appreciation. While the purchase price is substantial, the property type and location mitigate many risks associated with real estate. Islamic finance is technically possible, but the high price point presents a significant hurdle for standard KT Bank products, necessitating a very large down payment or alternative financing structures.",
+    "pros": [
+      "Exceptional prime location ('Bestlage') in Düsseldorf",
+      "High-quality, representative villa on a spacious, park-like plot",
+      "Strong potential for long-term value appreciation and capital preservation",
+      "High rental income potential for luxury segment",
+      "Excellent transport connectivity and access to amenities",
+      "Strong demand for high-end properties in Düsseldorf"
+    ],
+    "cons": [
+      "Very high acquisition cost and associated ancillary costs",
+      "Significant ongoing maintenance and operating costs for a large villa",
+      "Limited pool of potential buyers/renters due to price segment",
+      "Islamic financing through KT Bank is challenging due to the property's value exceeding typical limits",
+      "Potential for extensive renovation/modernization if not recently updated"
+    ],
+    "legal_terms": [
+      {
+        "de": "Grundbuchauszug",
+        "en": "Land Register Extract",
+        "explanation": "Official document detailing ownership, encumbrances (e.g., mortgages, easements), and property rights. Crucial for due diligence.",
+        "status": "OK"
+      },
+      {
+        "de": "Grunderwerbsteuer",
+        "en": "Real Estate Transfer Tax",
+        "explanation": "Tax payable on the purchase of real estate, varying by state (NRW is 6.5%).",
+        "status": "OK"
+      },
+      {
+        "de": "Notar- und Gerichtskosten",
+        "en": "Notary and Court Fees",
+        "explanation": "Fees for legal formalization of the purchase contract and entry into the land register, typically 1.5-2% of the purchase price.",
+        "status": "OK"
+      }
+    ],
+    "transport_analysis": {
+      "overall": "excellent",
+      "summary": "The property's location in central Düsseldorf (Heinrich-Heine-Allee) ensures outstanding connectivity. It benefits from immediate access to major public transport lines and excellent road infrastructure.",
+      "connections": [
+        {
+          "type": "U-Bahn/Tram",
+          "detail": "Multiple U-Bahn and tram lines (e.g., Heinrich-Heine-Allee station) within very short walking distance, connecting to all parts of the city.",
+          "quality": "excellent"
+        },
+        {
+          "type": "S-Bahn/Regional Train",
+          "detail": "Düsseldorf Hauptbahnhof (main station) is a short ride away, offering regional and national train connections.",
+          "quality": "very good"
+        },
+        {
+          "type": "Road Access",
+          "detail": "Excellent access to major city roads and nearby autobahns (A44, A52, A46) for regional and national travel.",
+          "quality": "excellent"
+        },
+        {
+          "type": "Airport",
+          "detail": "Düsseldorf International Airport (DUS) is easily reachable by public transport or car (approx. 15-20 min drive).",
+          "quality": "excellent"
+        }
+      ]
+    },
+    "market_outlook": {
+      "short_term": "Stable to slight growth in the luxury segment. High-end properties in prime locations like Düsseldorf remain resilient against market fluctuations.",
+      "mid_term": "Continued strong demand, especially from international buyers and high-net-worth individuals. Limited supply will support price stability and appreciation.",
+      "long_term": "Excellent. Düsseldorf's economic strength, international appeal, and consistent demand for premium properties in 'Bestlage' ensure robust long-term value growth."
+    },
+    "major_problems": [],
+    "investment_opportunities": [
+      "Potential for further development or subdivision of the large plot (subject to zoning regulations)",
+      "Opportunity for high-yield luxury rental income if not owner-occupied",
+      "Value appreciation through strategic modernization and energy efficiency upgrades",
+      "Prestige address enhances corporate or diplomatic use"
+    ],
+    "key_questions_to_ask": [
+      "What is the exact plot size and zoning classification (Bebauungsplan)?",
+      "When was the last major renovation or modernization (especially heating, windows, roof)?",
+      "What are the annual operating costs (Nebenkosten, maintenance reserves)?",
+      "Are there any known structural issues or latent defects?",
+      "Are there any easements, rights of way, or other encumbrances not immediately apparent?",
+      "What is included in the sale (e.g., fitted kitchen, specific fixtures)?",
+      "What is the energy certificate (Energieausweis) rating and recommended improvements?"
+    ],
+    "estimated_true_value": "€2,800,000 - €3,100,000. The asking price of €2.85M appears reasonable for a 'representative villa' in a 'Bestlage' of Düsseldorf, especially given the generous plot size. High demand for such exclusive properties often justifies prices at the upper end of this range.",
+    "hidden_costs": [
+      "3.5-6.5% Grunderwerbsteuer (6.5% in NRW)",
+      "1.5-2% Notar- and Grundbuch fees",
+      "3-6% + VAT Maklerprovision (buyer's agent fee, if applicable)",
+      "Potential costs for necessary renovations/modernizations",
+      "Ongoing operating and maintenance costs (Heizung, Strom, Wasser, Gartenpflege, Versicherung, etc.)"
+    ]
+  }
+}

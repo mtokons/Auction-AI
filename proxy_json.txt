@@ -1,0 +1,146 @@
+{
+  "property": {
+    "id": "hamburg-suhrenkamp-24",
+    "lot": "NDGA-HH-2024-00123",
+    "title": "Charming terraced house in popular Hamburg-Bramfeld location",
+    "titleDE": "Charmantes Reihenhaus in beliebter Lage Hamburg-Bramfeld",
+    "addr": "Suhrenkamp 24, 22179 Hamburg, Hamburg",
+    "size": 120,
+    "startPrice": 550000,
+    "type": "residential",
+    "diiaUrl": "https://www.ndga.de/auktionen/objekt/hamburg-suhrenkamp-24"
+  },
+  "analysis": {
+    "title_en": "Charming terraced house in Hamburg-Bramfeld",
+    "location": "Hamburg-Bramfeld, a well-established residential area in the north-east of Hamburg.",
+    "property_type": "Residential terraced house (Reihenhaus)",
+    "decision": "BUY",
+    "decision_reason": "Solid residential investment in strong Hamburg market, eligible for Islamic finance.",
+    "investment_score": 8.5,
+    "transport_score": 7.5,
+    "legal_score": 9.0,
+    "market_score": 8.5,
+    "cash_buy_score": 1.0,
+    "affordable_at_40k": false,
+    "cash_buy_analysis": {
+      "affordable": false,
+      "total_cost": "€608,785 (estimated)",
+      "breakdown": {
+        "auction_price": "N/A (not auction)",
+        "aufgeld": "N/A (no Aufgeld for private sale)",
+        "grunderwerbsteuer": "€19,250 (3.5% in Hamburg)",
+        "notar_grundbuch": "€9,900 (approx. 1.8%)",
+        "makler_commission": "€19,635 (approx. 3.57% incl. VAT, if applicable)",
+        "renovation_estimate": "€10,000 (for minor updates/contingency)",
+        "total": "€608,785"
+      },
+      "remaining_budget": "Over budget by €568,785",
+      "recommendation": "Requires significant bank financing or a much larger cash budget.",
+      "risks": [
+        "Exceeds €40k cash budget by a large margin",
+        "High transaction costs for a cash buyer at this price point"
+      ]
+    },
+    "islamic_finance_score": 9.0,
+    "islamic_finance_eligible": true,
+    "kt_bank_analysis": {
+      "eligible": true,
+      "reason": "Residential property in Hamburg (a major KT Bank coverage city), with a purchase price (€550,000) falling within their typical financing range (€100k-€1M). The property type (terraced house) is standard and ethically compliant.",
+      "estimated_downpayment": "€110,000-€165,000 (20-30% of €550,000)",
+      "financing_structure": "Musharaka or Murabaha (co-ownership or cost-plus financing)",
+      "term": "15-20 years (typical for residential property in Germany)",
+      "requirements": [
+        "Clean title deed (Grundbuchauszug)",
+        "Property valuation report (Gutachten)",
+        "Proof of stable income and creditworthiness",
+        "Valid German residence permit/citizenship",
+        "Down payment funds"
+      ],
+      "alternatives": [
+        "Cordoba Capital (another Islamic finance provider in Germany)",
+        "Traditional German banks for conventional financing (if Sharia compliance is not mandatory)"
+      ]
+    },
+    "summary": "This terraced house in Hamburg-Bramfeld represents a solid investment opportunity in a stable and desirable residential market. While not affordable for a €40k cash budget, it is highly eligible for Islamic financing through KT Bank due to its type, price, and location. Hamburg's property market shows robust long-term growth, making this a promising asset for owner-occupiers or long-term investors.",
+    "pros": [
+      "Excellent eligibility for Islamic financing via KT Bank.",
+      "Hamburg is a strong, stable real estate market with good appreciation potential.",
+      "Bramfeld is a family-friendly, well-connected residential area.",
+      "Terraced houses are popular and maintain value well.",
+      "Good transport links to Hamburg city center."
+    ],
+    "cons": [
+      "High purchase price requires substantial financing.",
+      "Transaction costs (Grunderwerbsteuer, Notar, potentially Makler) are significant.",
+      "Potential renovation needs (not specified, but common for older properties).",
+      "Competitive market in Hamburg may lead to bidding wars."
+    ],
+    "legal_terms": [
+      {
+        "de": "Grundbuch",
+        "en": "Land Register",
+        "explanation": "Official record of property ownership and any associated rights or burdens (e.g., mortgages, easements). Crucial for legal security.",
+        "status": "OK (Assumed clean, but requires verification)"
+      },
+      {
+        "de": "Grunderwerbsteuer",
+        "en": "Real Estate Transfer Tax",
+        "explanation": "Tax payable on the acquisition of real estate in Germany. In Hamburg, it is 3.5% of the purchase price.",
+        "status": "OK (Standard cost, must be budgeted)"
+      },
+      {
+        "de": "Notar- und Grundbuchkosten",
+        "en": "Notary and Land Register Fees",
+        "explanation": "Fees for the notary who certifies the purchase agreement and for the entry in the land register. Typically 1.5-2% of the purchase price.",
+        "status": "OK (Standard cost, must be budgeted)"
+      }
+    ],
+    "transport_analysis": {
+      "overall": "Good",
+      "summary": "Bramfeld offers good public transport connections, primarily via bus lines that connect to S-Bahn and U-Bahn stations, providing access to Hamburg city center and other districts.",
+      "connections": [
+        {
+          "type": "Bus",
+          "detail": "Numerous bus lines (e.g., 8, 17, 27, 118) serve Bramfeld, connecting to Wandsbek Markt (U1) and Barmbek (S1, U3) stations.",
+          "quality": "Good"
+        },
+        {
+          "type": "S-Bahn/U-Bahn",
+          "detail": "Indirect access via bus to S-Bahn (e.g., S1 in Barmbek, S21 in Rahlstedt) and U-Bahn (e.g., U1 in Wandsbek Markt). Future U5 line will improve direct access.",
+          "quality": "Moderate (currently requires bus transfer)"
+        },
+        {
+          "type": "Road",
+          "detail": "Good access to federal roads (B434, B75) and relatively quick connection to the A1 and A7 motorways.",
+          "quality": "Good"
+        }
+      ]
+    },
+    "market_outlook": {
+      "short_term": "Stable to slightly increasing prices due to high demand and limited supply in Hamburg's residential market. Interest rate fluctuations may cause temporary slowdowns.",
+      "mid_term": "Continued strong demand, especially for family-friendly properties like terraced houses. Price growth expected to moderate but remain positive.",
+      "long_term": "Hamburg's status as a major economic hub and attractive city ensures sustained demand and long-term value appreciation for well-located residential properties."
+    },
+    "major_problems": [],
+    "investment_opportunities": [
+      "Potential for value appreciation in a desirable urban setting.",
+      "Strong rental demand if purchased for buy-to-let (though likely owner-occupied).",
+      "Future infrastructure improvements (e.g., U5 line) could further enhance location value."
+    ],
+    "key_questions_to_ask": [
+      "What is the energy efficiency class (Energieausweis) of the property?",
+      "When was the last major renovation (e.g., roof, heating, windows)?",
+      "Are there any known defects or upcoming communal repair costs (if part of an Eigentümergemeinschaft)?",
+      "What is included in the purchase price (e.g., fitted kitchen, fixtures)?",
+      "What is the exact plot size and garden orientation?"
+    ],
+    "estimated_true_value": "€530,000-€580,000. This range is based on typical terraced house prices in Hamburg-Bramfeld, considering the 120m² size. The €550,000 'startPrice' seems fair market value, assuming good condition.",
+    "hidden_costs": [
+      "3.5% Grunderwerbsteuer (Real Estate Transfer Tax)",
+      "1.5-2% Notar and Land Register fees",
+      "3.57% (incl. VAT) Maklerprovision (real estate agent commission), if applicable and paid by buyer",
+      "Potential costs for property valuation/inspection",
+      "Moving costs, utility setup fees"
+    ]
+  }
+}

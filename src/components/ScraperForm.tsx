@@ -17,7 +17,7 @@ const STEPS = [
 ];
 
 export default function ScraperForm() {
-  const { scrapeAndAnalyze } = useStore();
+  const { scrapeAndAnalyze, setView } = useStore();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
@@ -39,6 +39,7 @@ export default function ScraperForm() {
     try {
       await scrapeAndAnalyze(trimmed);
       setUrl('');
+      setView('catalog'); // Switch to catalog to see the new property
     } catch {
       // Toast is shown by context
     } finally {

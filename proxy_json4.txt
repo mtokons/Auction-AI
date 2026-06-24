@@ -1,0 +1,146 @@
+{
+  "property": {
+    "id": "3379022918",
+    "lot": "KLEI-HAM-3379022918",
+    "title": "Representative Villa in Prime Location on Park-like Plot",
+    "titleDE": "Auf parkähnlichem Grundstück: Repräsentative Villa in Bestlage!",
+    "addr": "22605 Hamburg, Othmarschen, Hamburg",
+    "size": 407,
+    "startPrice": 3500000,
+    "type": "residential",
+    "diiaUrl": "https://www.kleinanzeigen.de/s-anzeige/auf-parkaehnlichem-grundstueck-repraesentative-villa-in-bestlage-/3379022918-208-9502"
+  },
+  "analysis": {
+    "title_en": "Representative Jugendstil Villa in Hamburg Othmarschen",
+    "location": "Hamburg Othmarschen, an exclusive Elbe suburb known for its prime residential character.",
+    "property_type": "Historic Jugendstil villa (1903), currently configured as a multi-family house with 4 units, convertible to a single-family residence.",
+    "decision": "BUY",
+    "decision_reason": "Prime location, strong investment potential, versatile use, excellent condition.",
+    "investment_score": 9.0,
+    "transport_score": 9.0,
+    "legal_score": 8.5,
+    "market_score": 9.5,
+    "cash_buy_score": 0.0,
+    "affordable_at_40k": false,
+    "cash_buy_analysis": {
+      "affordable": false,
+      "total_cost": "€3,914,950 total",
+      "breakdown": {
+        "auction_price": "N/A (not auction)",
+        "aufgeld": "N/A (no Aufgeld for private sale)",
+        "grunderwerbsteuer": "€227,500 (6.5%)",
+        "notar_grundbuch": "€52,500 (1.5%)",
+        "makler_provision": "€124,950 (3.57%)",
+        "renovation_estimate": "€10,000 (buffer for unforeseen costs)",
+        "total": "€3,914,950"
+      },
+      "remaining_budget": "Over budget by €3,874,950",
+      "recommendation": "Requires significant bank financing or a very substantial cash budget.",
+      "risks": [
+        "Exceeds €40k cash budget by a large margin"
+      ]
+    },
+    "islamic_finance_score": 8.0,
+    "islamic_finance_eligible": true,
+    "kt_bank_analysis": {
+      "eligible": true,
+      "reason": "Residential property in a prime Hamburg location is generally eligible. Although high-value (€3.5M), its multi-unit nature (3 rented units) could make it attractive for investment financing.",
+      "estimated_downpayment": "€700,000-€1,050,000 (20-30% of €3.5M)",
+      "financing_structure": "Musharaka or Murabaha (typically for high-value residential/investment)",
+      "term": "15-20 years (standard for such financing)",
+      "requirements": [
+        "Clean title",
+        "Property valuation",
+        "Proof of stable income and sufficient down payment",
+        "Ethical use of property"
+      ],
+      "alternatives": [
+        "Cordoba Capital",
+        "Guidance Residential (for US, but similar models exist)"
+      ]
+    },
+    "summary": "A magnificent, modernized Jugendstil villa in Hamburg Othmarschen, offering luxurious living and strong investment potential on a large, park-like plot. Its flexible multi-unit configuration and prime location make it a highly desirable asset.",
+    "pros": [
+      "Exclusive Elbvororte location with high demand.",
+      "Large 1,454 m² park-like plot.",
+      "Historic Jugendstil architecture with modern amenities.",
+      "Flexible use as single-family or multi-family (4 units, 3 currently rented).",
+      "Excellent transport links and proximity to amenities."
+    ],
+    "cons": [
+      "Very high purchase price (€3.5M).",
+      "Significant ancillary costs including 3.57% buyer's commission.",
+      "Ongoing maintenance costs typical for a large, historic property."
+    ],
+    "legal_terms": [
+      {
+        "de": "Käuferprovision beträgt 3,57 % (inkl. MwSt.) des beurkundeten Kaufpreises",
+        "en": "Buyer's commission is 3.57% (incl. VAT) of the notarized purchase price.",
+        "explanation": "Standard real estate agent commission paid by the buyer in Germany.",
+        "status": "OK"
+      },
+      {
+        "de": "Geldwäschegesetz (GwG) – Identitätsprüfung",
+        "en": "Money Laundering Act (GwG) – Identity verification.",
+        "explanation": "Mandatory legal requirement for real estate transactions to prevent money laundering.",
+        "status": "OK"
+      },
+      {
+        "de": "Haftung für die Richtigkeit oder Vollständigkeit der Angaben übernehmen wir daher nicht",
+        "en": "We do not assume liability for the accuracy or completeness of the information.",
+        "explanation": "Standard broker disclaimer; buyer must verify all information independently.",
+        "status": "OK"
+      }
+    ],
+    "transport_analysis": {
+      "overall": "Excellent",
+      "summary": "The property boasts outstanding connectivity via public transport (S-Bahn, bus) and major roads, providing quick access to Hamburg city center, airport, and local amenities.",
+      "connections": [
+        {
+          "type": "S-Bahn",
+          "detail": "Othmarschen station, quick access to city center and airport.",
+          "quality": "excellent"
+        },
+        {
+          "type": "Bus",
+          "detail": "Bus lines 0.3 km away, connecting to local areas and S-Bahn.",
+          "quality": "good"
+        },
+        {
+          "type": "Car",
+          "detail": "Close to A7 motorway, 20-minute drive to city center.",
+          "quality": "excellent"
+        },
+        {
+          "type": "Ferry",
+          "detail": "Elbe ferry from Teufelsbrück provides scenic alternative transport.",
+          "quality": "good"
+        }
+      ]
+    },
+    "market_outlook": {
+      "short_term": "Strong demand for premium properties in Hamburg's Elbvororte, ensuring price stability.",
+      "mid_term": "Continued appreciation due to limited supply and high desirability of the location.",
+      "long_term": "Excellent capital growth and preservation for unique, high-quality assets in this prime area."
+    },
+    "major_problems": [],
+    "investment_opportunities": [
+      "Potential for high rental income from the existing 3 rented units.",
+      "Strong capital appreciation in a top-tier, sought-after location.",
+      "Versatility to convert to a grand single-family residence, increasing its exclusive appeal."
+    ],
+    "key_questions_to_ask": [
+      "What are the detailed rental agreements and current income for the three rented units?",
+      "Can all units be delivered vacant, and what are the timelines?",
+      "What were the exact scope and dates of the 'umfassend modernisiert' works?",
+      "Provide a full breakdown of all utility and operating costs (Nebenkosten)."
+    ],
+    "estimated_true_value": "€3,500,000-€3,800,000, reflecting the prime location, property size, historic character, and recent modernizations.",
+    "hidden_costs": [
+      "6.5% Grunderwerbsteuer (Property Transfer Tax)",
+      "1.5-2% Notar- und Grundbuchkosten (Notary and Land Registry Fees)",
+      "3.57% Maklerprovision (Real Estate Agent Commission, incl. VAT)",
+      "Potential for unforeseen maintenance/renovation costs for a 1903 building."
+    ]
+  }
+}
