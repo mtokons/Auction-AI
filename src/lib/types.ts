@@ -113,7 +113,59 @@ export interface ScrapeResult {
   analysis: Analysis;
 }
 
-// ── UI Types ──
+// ── Search Types ──
+
+export type SourceKey =
+  | 'kleinanzeigen'
+  | 'immoscout24'
+  | 'immowelt'
+  | 'immonet'
+  | 'ebay_immobilien'
+  | 'diia'
+  | 'zvg'
+  | 'ndga';
+
+export interface SearchQuery {
+  location: string;
+  propertyType: 'apartment' | 'house' | 'villa' | 'land' | 'any';
+  budgetMin: number;
+  budgetMax: number;
+  sizeMin?: number;
+  sizeMax?: number;
+  rooms?: number;
+  sources: SourceKey[];
+}
+
+export interface SearchListing {
+  id: string;
+  title: string;
+  addr: string;
+  price: number;
+  priceLabel: string;
+  size: string;
+  rooms?: number;
+  propertyType: string;
+  source: SourceKey;
+  sourceLabel: string;
+  url: string;
+  isAuction: boolean;
+  description: string;
+  features: string[];
+  energyRating?: string;
+  constructionYear?: string;
+  postedAt?: string;
+}
+
+export const SOURCE_META: Record<SourceKey, { label: string; color: string; isAuction: boolean; domain: string }> = {
+  kleinanzeigen:  { label: 'Kleinanzeigen',     color: 'bg-yellow-100 text-yellow-800 border-yellow-200', isAuction: false, domain: 'kleinanzeigen.de' },
+  immoscout24:    { label: 'ImmobilienScout24',  color: 'bg-blue-100 text-blue-800 border-blue-200',       isAuction: false, domain: 'immobilienscout24.de' },
+  immowelt:       { label: 'Immowelt',           color: 'bg-orange-100 text-orange-800 border-orange-200', isAuction: false, domain: 'immowelt.de' },
+  immonet:        { label: 'Immonet',            color: 'bg-green-100 text-green-800 border-green-200',    isAuction: false, domain: 'immonet.de' },
+  ebay_immobilien:{ label: 'eBay Immobilien',    color: 'bg-purple-100 text-purple-800 border-purple-200', isAuction: false, domain: 'ebay-kleinanzeigen.de' },
+  diia:           { label: 'DIIA Auction',       color: 'bg-red-100 text-red-800 border-red-200',          isAuction: true,  domain: 'diia.de' },
+  zvg:            { label: 'ZVG Portal',         color: 'bg-red-100 text-red-800 border-red-200',          isAuction: true,  domain: 'zvg-portal.de' },
+  ndga:           { label: 'NDGA',               color: 'bg-red-100 text-red-800 border-red-200',          isAuction: true,  domain: 'ndga.de' },
+};
 
 export type ViewType = 'catalog' | 'leaderboard' | 'hamburg' | 'budget' | 'islamic';
 

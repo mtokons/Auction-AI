@@ -8,7 +8,7 @@ import React, {
   useCallback,
   type ReactNode,
 } from 'react';
-import type { Property, Analysis, ViewType, FilterType } from '@/lib/types';
+import type { Property, Analysis, ViewType, FilterType, SearchListing, SearchQuery } from '@/lib/types';
 import { DEFAULT_PROPERTIES } from '@/lib/data';
 
 // ── Store shape ──
@@ -21,6 +21,10 @@ interface PropertyStore {
   modalPropertyId: string | null;
   toastMessage: string | null;
   analyzingIds: Set<string>;
+  // Search state
+  searchListings: SearchListing[];
+  isSearching: boolean;
+  lastQuery: SearchQuery | null;
 
   setView: (v: ViewType) => void;
   setFilter: (f: FilterType) => void;
@@ -34,6 +38,8 @@ interface PropertyStore {
   analyzeProperty: (p: Property) => Promise<void>;
   scrapeAndAnalyze: (url: string) => Promise<void>;
   analyzeAll: (onProgress?: (done: number, total: number) => void) => Promise<void>;
+  runSearch: (query: SearchQuery) => Promise<void>;
+  analyzeSearchListing: (listing: SearchListing) => Promise<void>;
   analyzedCount: number;
   filteredProperties: Property[];
 }
@@ -56,6 +62,9 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
   const [modalPropertyId, setModalPropertyId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [analyzingIds, setAnalyzingIds] = useState<Set<string>>(new Set());
+  const [searchListings, setSearchListings] = useState<SearchListing[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [lastQuery, setLastQuery] = useState<SearchQuery | null>(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -256,6 +265,109 @@ Type: ${p.type}`;
     [properties, analyses, analyzeProperty],
   );
 
+  // ── Search properties across sources ──
+  const runSearch = useCallback(async (query: SearchQuery) => {
+    setIsSearching(true);
+    setLastQuery(query);
+    try {
+      const resp = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      setSearchListings(data.listings || []);
+      if ((data.listings || []).length === 0) {
+        showToast('No results found — try different criteria');
+      }
+    } catch (e) {
+      showToast(`Search failed: ${(e as Error).message}`);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [showToast]);
+
+  // ── Analyze a search listing (converts to Property then analyzes) ──
+  const analyzeSearchListing = useCallback(async (listing: SearchListing) => {
+    const propId = listing.id;
+
+    // Already analyzed? Open modal
+    if (analyses[propId]) {
+      setModalPropertyId(propId);
+      return;
+    }
+
+    // Convert to Property and add
+    const prop: Property = {
+      id: propId,
+      lot: listing.source.toUpperCase(),
+      title: listing.title,
+      titleDE: listing.title,
+      addr: listing.addr,
+      size: listing.size,
+      startPrice: listing.price,
+      highBid: null,
+      bids: 0,
+      type: listing.propertyType === 'apartment' ? 'residential' :
+            listing.propertyType === 'house' ? 'residential' :
+            listing.propertyType === 'villa' ? 'residential' :
+            listing.propertyType === 'land' ? 'land' : 'residential',
+      diiaUrl: listing.url,
+      isAuction: listing.isAuction,
+    };
+
+    addProperty(prop);
+    setAnalyzing(propId, true);
+
+    try {
+      const msg = `Property: ${listing.title}
+Location: ${listing.addr}
+Size: ${listing.size}
+Price: €${listing.price.toLocaleString()}
+Rooms: ${listing.rooms || 'N/A'}
+Type: ${listing.propertyType}
+Source: ${listing.sourceLabel}
+${listing.description ? `Description: ${listing.description}` : ''}
+${listing.features?.length ? `Features: ${listing.features.join(', ')}` : ''}
+${listing.energyRating ? `Energy rating: ${listing.energyRating}` : ''}
+${listing.constructionYear ? `Built: ${listing.constructionYear}` : ''}`;
+
+      const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ propertyId: propId, userMessage: msg, isAuction: listing.isAuction }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      let parsed: Analysis;
+      if (data.cached) {
+        parsed = typeof data.text === 'string' ? JSON.parse(data.text) : data.text;
+      } else {
+        const raw = (data.text || '').replace(/```json|```/g, '').trim();
+        const si = raw.indexOf('{');
+        const ei = raw.lastIndexOf('}');
+        if (si === -1 || ei === -1) throw new Error('Invalid JSON from AI');
+        parsed = JSON.parse(raw.slice(si, ei + 1));
+      }
+
+      saveAnalysis(propId, parsed);
+      setModalPropertyId(propId);
+    } catch (e) {
+      showToast(`Analysis failed: ${(e as Error).message}`);
+    } finally {
+      setAnalyzing(propId, false);
+    }
+  }, [analyses, addProperty, saveAnalysis, setAnalyzing, showToast]);
+
   // ── Derived data ──
   const analyzedCount = Object.keys(analyses).length;
 
@@ -286,6 +398,9 @@ Type: ${p.type}`;
         modalPropertyId,
         toastMessage,
         analyzingIds,
+        searchListings,
+        isSearching,
+        lastQuery,
         setView,
         setFilter,
         setSearch,
@@ -298,6 +413,8 @@ Type: ${p.type}`;
         analyzeProperty,
         scrapeAndAnalyze,
         analyzeAll,
+        runSearch,
+        analyzeSearchListing,
         analyzedCount,
         filteredProperties,
       }}

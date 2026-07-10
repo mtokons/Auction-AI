@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callGemini, extractJSON, getCached, setCache } from '@/lib/gemini';
-import { buildAnalysisPrompt } from '@/lib/prompts';
+import { buildAnalysisPrompt, buildDeepAnalysisPrompt } from '@/lib/prompts';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { propertyId, userMessage } = body;
+    const { propertyId, userMessage, isAuction } = body;
 
     // Check server cache
     if (propertyId) {
@@ -15,7 +15,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const systemPrompt = buildAnalysisPrompt();
+    // Use the appropriate prompt based on property type
+    const systemPrompt = isAuction === false
+      ? buildDeepAnalysisPrompt(false)
+      : buildAnalysisPrompt();
+
     const result = await callGemini(systemPrompt, userMessage);
 
     if (result.error) {
