@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const result = await callGemini(systemPrompt, userMessage);
 
     if (result.error || !result.text) {
-      return NextResponse.json({ error: result.message || 'AI search failed' }, { status: 502 });
+      return NextResponse.json({ error: result.message || 'AI search failed', raw: result.text || null }, { status: 502 });
     }
 
     // Extract JSON array from response
@@ -35,14 +35,14 @@ export async function POST(request: NextRequest) {
     const si = raw.indexOf('[');
     const ei = raw.lastIndexOf(']');
     if (si === -1 || ei === -1) {
-      return NextResponse.json({ error: 'Could not parse search results' }, { status: 502 });
+      return NextResponse.json({ error: 'Could not parse search results', raw: result.text || raw }, { status: 502 });
     }
 
     let listings: SearchListing[];
     try {
       listings = JSON.parse(raw.slice(si, ei + 1));
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON from AI search' }, { status: 502 });
+      return NextResponse.json({ error: 'Invalid JSON from AI search', raw: raw }, { status: 502 });
     }
 
     // Validate and sanitize listings
