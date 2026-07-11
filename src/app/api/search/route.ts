@@ -49,12 +49,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback: if AI truncated the array (missing trailing ]) try to append and parse
-    if (!listings && ei === -1) {
-      try {
-        listings = JSON.parse(raw.slice(si) + ']');
-        ei = raw.length - 1; // best-effort
-      } catch {
-        listings = null;
+    if (!listings) {
+      // Try simple append if no closing bracket
+      if (ei === -1) {
+        try {
+          listings = JSON.parse(raw.slice(si) + ']');
+        } catch {
+          listings = null;
+        }
+      }
+
+      // If still failing, try trimming to the last complete object (`}`) and close the array
+      if (!listings) {
+        const lastBrace = raw.lastIndexOf('}');
+        if (lastBrace > si) {
+          try {
+            listings = JSON.parse(raw.slice(si, lastBrace + 1) + ']');
+          } catch {
+            listings = null;
+          }
+        }
       }
     }
 
