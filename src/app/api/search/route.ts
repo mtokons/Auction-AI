@@ -33,15 +33,32 @@ export async function POST(request: NextRequest) {
     // Extract JSON array from response
     const raw = (result.text || '').replace(/```json|```/g, '').trim();
     const si = raw.indexOf('[');
-    const ei = raw.lastIndexOf(']');
-    if (si === -1 || ei === -1) {
+    let ei = raw.lastIndexOf(']');
+    if (si === -1) {
       return NextResponse.json({ error: 'Could not parse search results', raw: result.text || raw }, { status: 502 });
     }
 
-    let listings: SearchListing[];
+    let listings: SearchListing[] | null = null;
+    // Try normal parse first
     try {
-      listings = JSON.parse(raw.slice(si, ei + 1));
+      if (ei !== -1) {
+        listings = JSON.parse(raw.slice(si, ei + 1));
+      }
     } catch {
+      listings = null;
+    }
+
+    // Fallback: if AI truncated the array (missing trailing ]) try to append and parse
+    if (!listings && ei === -1) {
+      try {
+        listings = JSON.parse(raw.slice(si) + ']');
+        ei = raw.length - 1; // best-effort
+      } catch {
+        listings = null;
+      }
+    }
+
+    if (!listings) {
       return NextResponse.json({ error: 'Invalid JSON from AI search', raw: raw }, { status: 502 });
     }
 
